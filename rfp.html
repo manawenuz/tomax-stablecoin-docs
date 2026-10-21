@@ -4,14 +4,15 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
 <title>Request for proposals · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
-<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Currency partners</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html" aria-current="page">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="request-for-proposals">Request for proposals</h1>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="fxswap-backtest.html">FXSwap backtest</a><a href="simulation.html">V3 simulation</a><a href="results.html">V3 result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Currency partners</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html" aria-current="page">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="request-for-proposals">Request for proposals</h1>
 <h2 id="project-and-objective">Project and objective</h2>
 <p>Design and validate collateral-backed IRR, TRY, and ARS tracking tokens with $10k to $50k seed LP value per currency. Most loans should require locked LP collateral containing the issued token and an external asset. A smaller reviewed branch may accept liquid volatile collateral such as ETH. Security, recoverability, and realistic gas costs are acceptance requirements.</p>
 <p>This RFP requests research and specification proposals first. Production deployment requires a separately approved implementation, independent review, remediation, and operating plan. No implementation or audit engagement is commissioned by publication of this RFP.</p>
 <h2 id="required-baseline">Required baseline</h2>
 <ul>
 <li>Model 96% of additional debt backed by LP and 4% by ETH, with 87.4% actual LP LTV.</li>
-<li>Start with $10k, $20k, $30k, $40k and $50k total seed LP value per currency, a 0.97 to 1.00 target trading range, and initial price 1.00 with quote-only seed liquidity.</li>
+<li>Replicate both AMM cases separately: V3 starts with $10k–$50k quote-only LP value at the upper boundary; FXSwap starts at price 1 with external quote seed plus an equal-value self-issued token leg. Record the latter as bootstrap issuance and a treasury liability. Show the alternate interpretation where $10k–$50k means total two-sided LP value.</li>
+<li>For FXSwap, report both fee-exclusive marginal price and executable bid within 3% of parity, realistic-size exit depth, and internal price-scale drift. It has no hard 0.97–1.00 range.</li>
 <li>Treat LP borrowing as buy, deposit, lock, mint, and sell, using actual AMM price impact and post-purchase inventory.</li>
 <li>Permit quote-only LP entry at the starting upper boundary. Specify collateral-backed expansion above parity separately.</li>
 <li>Compare the base case with the supplied FiRM LP-collateral benchmark using consistent gross debt, own-token collateral, external assets, and residual-debt denominators.</li>
@@ -22,6 +23,8 @@
 <li>Price security and operations separately from liquidity capital.</li>
 <li>Replicate the historical FX reset workload, then extend it to higher-frequency multi-source prices, inventory conversion, slippage, outages and real keeper latency. Separate 2%/5% anchor tolerance from total-price tolerance.</li>
 <li>Evaluate matching local-currency savings-share quote routes against direct FX pools: Zarban for IRR, with separate TRY and ARS providers to be selected. Include source receipt accounting, any required bridge and authenticated rate delivery, independent peg policy, and committed exits.</li>
+<li>Replicate the <a href="fxswap-backtest.html">source-based FXSwap replay</a>, including finite circulating supply, cold-launch and established refuel schedules, zero-refuel cases, full nominal 179-day history and the six objectively selected minute-data days. Explain how the proposed token obtains an executable external market; a Wallex IRR price does not create Tomax-token liquidity.</li>
+<li>Resolve the observed loss of peg when outside token supply is exhausted. Any extra minting, collateral, inventory withdrawal, redemption or partner route must have explicit funding, supply conservation and solvency rules. Unlimited outside-token arbitrage is a diagnostic benchmark, not launch evidence.</li>
 </ul>
 <h2 id="work-packages">Work packages</h2>
 <div class="table-wrap"><table>
@@ -93,12 +96,13 @@
 <p>Separate design, optional reference implementation, independent economic review, smart-contract audits, remediation, and launch support. Explain how competing code and interest choices change cost and security scope. Offer stop points after economic feasibility and after specification review.</p>
 <h2 id="acceptance-gates">Acceptance gates</h2>
 <ol>
-<li>Independent replication of the baseline and an explanation of its lack of a finite issuance ceiling.</li>
+<li>Independent replication of both the V3 asymptote and the finite FXSwap burst-issuance boundary, including initial token liabilities and new borrower capital.</li>
 <li>Exit envelopes with complete liabilities and explicit funding assumptions; explain why 5%/10% exits give no finite cap in the ideal 96/4 model and impose independent risk constraints.</li>
 <li>A valuation and liquidation design meeting the security invariants under manipulation and outages.</li>
 <li>A bounded gas and keeper-economics plan for the nominated chain.</li>
 <li>Resolved critical choices and an implementable specification before production work is approved.</li>
 <li>Independent reviews and funded operational readiness before accepting uncapped user exposure.</li>
+<li>Measured FXSwap deposit/refuel/recenter paths, integer/fork parity, dynamic-fee arbitrage optimization, fee/admin-claim allocation, seven-day release/protection tests, and a funded mechanism that passes the historical peg failures without inventing circulating tokens.</li>
 </ol>
 <h2 id="exclusions-and-rights">Exclusions and rights</h2>
 <p>The current package contains no token sale, return promise, wallet integration, production contracts, audit certification, or commitment to any provider. Proposals must identify intellectual property and licensing terms, data rights, access requirements, and ongoing support obligations. Send proposals only through a channel designated by the project owner; no submission address is assumed here.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

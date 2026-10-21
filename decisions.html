@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
 <title>Decisions and open questions · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
-<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Currency partners</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html" aria-current="page">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="decisions-and-open-questions">Decisions and open questions</h1>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="fxswap-backtest.html">FXSwap backtest</a><a href="simulation.html">V3 simulation</a><a href="results.html">V3 result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Currency partners</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html" aria-current="page">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="decisions-and-open-questions">Decisions and open questions</h1>
 <h2 id="accepted-research-assumptions">Accepted research assumptions</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -40,15 +40,15 @@
 </tr>
 <tr>
 <td>Seed liquidity cases</td>
-<td>$10k to $50k total LP value per currency</td>
+<td>V3: $10k–$50k quote-only LP value. FXSwap: show $10k–$50k external quote seed and the alternate total-two-sided-LP interpretation separately</td>
 </tr>
 <tr>
 <td>Target trading range</td>
-<td>0.97 to 1.00 of external currency parity</td>
+<td>V3: 0.97 to 1.00 of external parity. FXSwap: sampled 3% spot tolerance; no hard range</td>
 </tr>
 <tr>
 <td>Starting price</td>
-<td>1.00, with quote-only seed LP</td>
+<td>1.00. V3 quote-only; FXSwap equal-value quote and own-token legs, with seed own tokens recorded as treasury liabilities</td>
 </tr>
 <tr>
 <td>Above parity</td>
@@ -85,6 +85,18 @@
 <tr>
 <td>Partner market separation</td>
 <td>ZAR is used only for IRR; each market has its own savings rate, provider exposure and exit budget</td>
+</tr>
+<tr>
+<td>FXSwap template</td>
+<td>Inspected ZCHF/crvUSD v2.1.0d source at block 26,241,105; research parameters, not approved IRR settings</td>
+</tr>
+<tr>
+<td>FXSwap ETH branch</td>
+<td>Illustrative 67% opening LTV, with 60%/75% sensitivity; no liquidation threshold adopted</td>
+</tr>
+<tr>
+<td>FXSwap external route</td>
+<td>Conditional arbitrage assumption, finite issued supply in base replay; actual Tomax exit route remains unresolved</td>
 </tr>
 </tbody>
 </table></div>

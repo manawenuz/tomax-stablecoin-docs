@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
 <title>Primary sources · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
-<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Currency partners</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html" aria-current="page">Sources</a></nav><main id="content"><article><h1 id="primary-sources">Primary sources</h1>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="fxswap-backtest.html">FXSwap backtest</a><a href="simulation.html">V3 simulation</a><a href="results.html">V3 result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Currency partners</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html" aria-current="page">Sources</a></nav><main id="content"><article><h1 id="primary-sources">Primary sources</h1>
 <p>These references support the protocol precedents and infrastructure behavior discussed in the research. The simulation's assumptions and proposed Tomax requirements are separate design work. Reference review date: 21 October 2026.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -134,6 +134,22 @@
 <td><a href="https://eips.ethereum.org/EIPS/eip-4626">ERC-4626</a></td>
 <td>Share conversion, previews and withdrawal limits are distinct</td>
 </tr>
+<tr>
+<td><a href="https://docs.curve.finance/developer/amm/fxswap/pools/mechanism">Curve FXSwap mechanism</a></td>
+<td>Full-range liquidity, internal trade EMA, dynamic fees and conditional recentering</td>
+</tr>
+<tr>
+<td><a href="https://docs.curve.finance/developer/amm/fxswap/pools/refuels">Curve FXSwap refuels</a></td>
+<td>Unowned nonwithdrawable shares, release, protection and depletion</td>
+</tr>
+<tr>
+<td><a href="https://sourcify.dev/server/v2/contract/1/0x027B40F5917FCd0eac57d7015e120096A5F92ca9?fields=all">Pinned pool verified source</a></td>
+<td>ZCHF/crvUSD v2.1.0d implementation used as the research template</td>
+</tr>
+<tr>
+<td><a href="https://eth.blockscout.com/address/0x027B40F5917FCd0eac57d7015e120096A5F92ca9">Pool block explorer</a></td>
+<td>Ethereum address; model observations pinned at block 26,241,105</td>
+</tr>
 </tbody>
 </table></div>
-<p>The issuance simulation fixes normalized FX. The separate workload study uses historical exchange data and the ETH budget uses explicitly assumed transaction gas plus a separately disclosed RPC fee snapshot. The Zarban APY illustration is an assumption, not an observed provider yield. No provider quote or liquidity commitment is implied. Data requests, coverage, units and hashes are in the downloadable model's manifest; raw responses are preserved in the private research archive.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>
+<p>The earlier V3 issuance simulation fixes normalized FX. The separate workload study and newer <a href="fxswap-backtest.html">FXSwap loss replay</a> use historical exchange data. ETH budgets use explicitly assumed transaction gas; a separately disclosed RPC snapshot is not a forecast. The Zarban APY illustration is an assumption, not an observed provider yield. No provider quote or liquidity commitment is implied. Data requests, coverage, units and hashes are archived. Normalized hourly IRR plus six actual minute days and ETH hourly data are in the reproducibility bundle, with raw minute/ETH responses. Earlier hourly raw responses remain in the private research archive.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

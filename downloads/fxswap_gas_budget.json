@@ -1,0 +1,89 @@
+{
+  "assumed_refuel_gas": 250000,
+  "measured": false,
+  "gas_scenarios": [
+    {
+      "effective_gwei": 1,
+      "eth_per_daily_call": 0.00025,
+      "eth_per_three_daily_calls": 0.00075
+    },
+    {
+      "effective_gwei": 5,
+      "eth_per_daily_call": 0.00125,
+      "eth_per_three_daily_calls": 0.0037500000000000003
+    },
+    {
+      "effective_gwei": 20,
+      "eth_per_daily_call": 0.005,
+      "eth_per_three_daily_calls": 0.015000000000000001
+    }
+  ],
+  "principal_conversion": "Accepted USDT refuels divided by the last available historical ETH/USDT mark; not gas spending",
+  "example_eth_usdt": 2000,
+  "examples": [
+    {
+      "daily_token_refuel_usdt": 10,
+      "token_funding_eth": 0.005,
+      "gas_eth_at_5gwei": 0.00125,
+      "total_eth_at_5gwei": 0.00625
+    },
+    {
+      "daily_token_refuel_usdt": 50,
+      "token_funding_eth": 0.025,
+      "gas_eth_at_5gwei": 0.00125,
+      "total_eth_at_5gwei": 0.026250000000000002
+    }
+  ],
+  "historical_cases": [
+    {
+      "label": "long_10k_finite_0",
+      "days": 179,
+      "accepted_refuels": 0,
+      "token_spending_usdt": 0,
+      "token_funding_eth": 0.0,
+      "mean_token_funding_eth_per_day": 0.0,
+      "modeled_gas_eth_at_5gwei": 0.0,
+      "mean_total_eth_per_day_at_5gwei": 0.0
+    },
+    {
+      "label": "long_10k_finite_0.0001",
+      "days": 179,
+      "accepted_refuels": 179,
+      "token_spending_usdt": 179.0,
+      "token_funding_eth": 0.08601379473599093,
+      "mean_token_funding_eth_per_day": 0.0004805239929384968,
+      "modeled_gas_eth_at_5gwei": 0.22375,
+      "mean_total_eth_per_day_at_5gwei": 0.0017305239929384967
+    },
+    {
+      "label": "long_10k_finite_0.001",
+      "days": 179,
+      "accepted_refuels": 179,
+      "token_spending_usdt": 1790.0,
+      "token_funding_eth": 0.8601379473599088,
+      "mean_token_funding_eth_per_day": 0.004805239929384965,
+      "modeled_gas_eth_at_5gwei": 0.22375,
+      "mean_total_eth_per_day_at_5gwei": 0.006055239929384965
+    },
+    {
+      "label": "long_10k_finite_0.003",
+      "days": 179,
+      "accepted_refuels": 179,
+      "token_spending_usdt": 5370.0,
+      "token_funding_eth": 2.580413842079726,
+      "mean_token_funding_eth_per_day": 0.014415719788154894,
+      "modeled_gas_eth_at_5gwei": 0.22375,
+      "mean_total_eth_per_day_at_5gwei": 0.015665719788154894
+    },
+    {
+      "label": "long_50k_finite_0.001",
+      "days": 179,
+      "accepted_refuels": 179,
+      "token_spending_usdt": 8950.0,
+      "token_funding_eth": 4.300689736799546,
+      "mean_token_funding_eth_per_day": 0.024026199646924838,
+      "modeled_gas_eth_at_5gwei": 0.22375,
+      "mean_total_eth_per_day_at_5gwei": 0.025276199646924836
+    }
+  ]
+}

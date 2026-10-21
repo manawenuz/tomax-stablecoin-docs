@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>FXSwap issuance, refuel costs and real IRR replay · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="fxswap-backtest.html" aria-current="page">FXSwap backtest</a><a href="simulation.html">V3 simulation</a><a href="results.html">V3 result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Currency partners</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="fxswap-issuance-refuel-costs-and-real-irr-replay">FXSwap issuance, refuel costs and real IRR replay</h1>
+<p>With the inspected ZCHF/crvUSD FXSwap parameters, the modeled <strong>fixed-FX burst-issuance boundary is $31,605 of additional debt per $10,000 of external quote seed</strong>. A marginal executable bid floor of 0.97, including swap fees, reduces it to <strong>$28,627</strong>. These are immediate entry-flow limits, with no arbitrage between loans. They are not sustainable debt limits: both the frozen-debt historical base and the tested bounded above-peg expansion policies fail the 3% peg test.</p>
+<p>All dollar figures below are <strong>USDT-equivalent</strong>, assuming USDT/USD parity. The issued token is normalized to 1 USDT at launch; actual native-IRR quantities scale by the launch IRR/USDT rate. The study uses 96% LP-backed / 4% ETH-backed <strong>additional</strong> debt, 87.4% LP LTV and an illustrative 67% opening ETH LTV. The bootstrap own-token liability sits outside that 96/4 mix.</p>
+<h2 id="seed-and-debt-accounting">Seed and debt accounting</h2>
+<p>FXSwap needs both assets at launch. External seed <code>E</code> supplies <code>E</code> quote tokens; treasury also issues <code>E</code> own tokens into the pool, so initial LP TVL is <code>2E</code>, initial token liability is <code>E</code>, and net external seed equity is <code>E</code>. The own-token leg is not new outside capital. The earlier quote-only V3 bootstrap is a different case.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">External quote seed</th>
+<th style="text-align: right;">Initial two-sided LP TVL</th>
+<th style="text-align: right;">Bootstrap token liability</th>
+<th style="text-align: right;">Additional debt: spot floor 0.97</th>
+<th style="text-align: right;">Additional debt: fee-inclusive bid floor 0.97</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">$10,000</td>
+<td style="text-align: right;">$20,000</td>
+<td style="text-align: right;">$10,000</td>
+<td style="text-align: right;">$31,605</td>
+<td style="text-align: right;">$28,627</td>
+</tr>
+<tr>
+<td style="text-align: right;">$20,000</td>
+<td style="text-align: right;">$40,000</td>
+<td style="text-align: right;">$20,000</td>
+<td style="text-align: right;">$63,210</td>
+<td style="text-align: right;">$57,254</td>
+</tr>
+<tr>
+<td style="text-align: right;">$30,000</td>
+<td style="text-align: right;">$60,000</td>
+<td style="text-align: right;">$30,000</td>
+<td style="text-align: right;">$94,815</td>
+<td style="text-align: right;">$85,881</td>
+</tr>
+<tr>
+<td style="text-align: right;">$40,000</td>
+<td style="text-align: right;">$80,000</td>
+<td style="text-align: right;">$40,000</td>
+<td style="text-align: right;">$126,420</td>
+<td style="text-align: right;">$114,508</td>
+</tr>
+<tr>
+<td style="text-align: right;">$50,000</td>
+<td style="text-align: right;">$100,000</td>
+<td style="text-align: right;">$50,000</td>
+<td style="text-align: right;">$158,025</td>
+<td style="text-align: right;">$143,136</td>
+</tr>
+</tbody>
+</table></div>
+<p>If <strong>$10k–$50k means total starting LP TVL</strong>, external seed is only $5k–$25k and the spot-based additional-debt boundary is <strong>$15,803–$79,013</strong>. Do not compare either denominator directly with FiRM's residual-debt estimate.</p>
+<p>Each borrower buys the entire own-token LP leg, deposits at the resulting reserve ratio, locks the recoverable receipt, mints debt and sells it. Both debt branches sell 100% of minted tokens. Receipt value is measured before that final sale. No 8% fee or withheld debt is assumed. The seed treasury and borrowers own different LP claims.</p>
+<p>At the $10k-seed spot boundary, LP borrowers contribute approximately <strong>$4,592 of net quote cash</strong> in addition to the seed. ETH borrowers post approximately <strong>$1,887 of ETH</strong> at 67% opening LTV. This is not debt created with seed capital alone. Source fees stay in the pool. Cohorts are $10 per $10k seed in the refined result, all at one timestamp so the EMA cannot learn the issuance pressure between loans. They are numerical integration steps, not a proposed gas-feasible same-block borrowing schedule. Using $100 cohorts changes the boundary by about 0.011%; paced issuance and organic trading are different paths.</p>
+<p>The 0.97 number is a fee-exclusive marginal spot floor, not a guaranteed fill price for a large sale. FXSwap is full-range and has no hard 0.97–1.00 boundary. Issuing at the boundary leaves no further spot-discount headroom. Above-peg stabilization issuance is not silently added to the model.</p>
+<h2 id="source-and-parameters">Source and parameters</h2>
+<p>The engine ports the verified source behind Ethereum pool <a href="https://eth.blockscout.com/address/0x027B40F5917FCd0eac57d7015e120096A5F92ca9"><code>0x027B…2ca9</code></a>, pinned at block <strong>26,241,105</strong>. It uses the inspected <strong>v2.1.0d StableSwap-based FXSwap invariant</strong>, not a generic CryptoSwap approximation. The six pinned onchain quote observations agree within the float-port test tolerances.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Replay setting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Raw A</td>
+<td>600,000; internal math convention implies A_true = 30</td>
+</tr>
+<tr>
+<td>Swap fee</td>
+<td>Dynamic 2.5–25 basis points</td>
+</tr>
+<tr>
+<td>Fee gamma</td>
+<td>0.003</td>
+</tr>
+<tr>
+<td>EMA</td>
+<td>Internal exponent time 5,193 seconds, approximately one-hour half-life</td>
+</tr>
+<tr>
+<td>Adjustment step</td>
+<td>0.0000001 fraction</td>
+</tr>
+<tr>
+<td>Allowed extra profit</td>
+<td>0.000000000001 fraction</td>
+</tr>
+<tr>
+<td>Refuel release</td>
+<td>Seven days; no preload in these runs</td>
+</tr>
+<tr>
+<td>Outstanding refuel-share cap</td>
+<td>10% of total shares</td>
+</tr>
+<tr>
+<td>Deposit protection</td>
+<td>60 seconds, 50% LP-add threshold</td>
+</tr>
+<tr>
+<td>Refuel asset</td>
+<td>External quote only, through actual donation-deposit accounting</td>
+</tr>
+</tbody>
+</table></div>
+<p>The pool derives its EMA from previous <strong>pool trade prices</strong>. The Wallex reference is never inserted into its internal oracle. Swaps and refuels may attempt recentering; a call does not guarantee a move. Released refuel shares and permitted profit must cover the recenter cost. Refuel shares have no owner or withdrawal right. <a href="https://docs.curve.finance/developer/amm/fxswap/pools/mechanism">Curve mechanism</a>, <a href="https://docs.curve.finance/developer/amm/fxswap/pools/refuels">refuel lifecycle</a>.</p>
+<p>This float-unit research port excludes wei rounding, ramps, token transfer behavior, one-coin/fixed-output withdrawals and complete EVM execution. It does not certify this pool or Tomax. Source URLs, hashes, block observations and tests are in the reproducibility download; upstream source text remains available through the verified-source links. These Swiss-franc pool settings have not been optimized or approved for IRR volatility.</p>
+<h2 id="what-the-historical-replay-assumes">What the historical replay assumes</h2>
+<p>The nominal window is <strong>25 April–20 October 2026</strong>, 179 Asia/Tbilisi calendar days. It contains <strong>4,279 / 4,296 hourly bars</strong>, with 17 missing bars retained as gaps. Six selected days replace their hourly bars with <strong>8,640 actual one-minute bars</strong>, producing 12,775 close observations. No missing ticks are invented. ETH collateral uses the last available Binance ETH/USDT hourly close.</p>
+<p>Main historical runs issue <strong>half the fixed-FX spot boundary</strong>: $15,803 new debt for $10k external seed, or $79,013 for $50k. Debt token quantities stay fixed after launch; they are not re-denominated daily. This is an illustrative headroom case, not a proposed risk limit.</p>
+<p>After each observed close, a hypothetical arbitrageur can transact at the reference with a 5 bp external execution cost and requires at least $0.50 profit before fixed execution cost. All circulating own tokens are assumed accessible on that route. Those are optimistic execution assumptions: <strong>Wallex trades USDT against fiat Toman; it does not trade or redeem Tomax tokens.</strong> Actual Tomax outside liquidity, market depth, settlement, gas and latency are unknown. Minimum-profit sensitivities of $5/$25 and synthetic intrabar path stresses are supplied separately.</p>
+<p>Two inventory cases are deliberately separated:</p>
+<ul>
+<li><strong>Finite issued supply:</strong> arbitrage cannot sell more own tokens than exist outside the pool. All seed and newly borrowed tokens initially end up inside the pool. Arbitrage buys can create outside holdings, which later sells can exhaust.</li>
+<li><strong>Hypothetical outside-supply benchmark:</strong> unrestricted reference-price token sales are allowed for diagnostic comparison. Any pool inventory beyond total issued tokens is explicitly reported. This benchmark is infeasible without an additional collateralized issuance/inventory mechanism, and is not evidence that a launch can maintain the peg.</li>
+</ul>
+<p>The replay has no ordinary customer trading, interest revenue, new lending after launch, debt repayment, direct redemption, LP withdrawal, offchain hedge or liquidation execution. Gross swap fees are included in LP inventory returns, not counted again as protocol revenue. Deferred Curve admin claims are not executed; returns are gross of any later claim. Treasury does not automatically own Curve's fee receiver.</p>
+<p>Arbitrage sizing searches a dense grid plus geometric small-trade points and refines candidate peaks. Dynamic fees can create multiple profit peaks, so a single concave/unimodal optimizer is insufficient. Independent 192/384/768-grid checks on the two high-volatility minute days changed treasury P&amp;L by less than $0.001 and preserved trade/recenter/breach counts.</p>
+<h2 id="frozen-debt-history-circulating-supply-is-the-binding-problem">Frozen-debt history: circulating supply is the binding problem</h2>
+<p>With finite supply and no refuels, the largest sampled post-arbitrage spot error is <strong>71.5%</strong>, and the liquidity center's error reaches <strong>74.2%</strong>. Outside token holdings repeatedly reach zero. Refueling cannot manufacture saleable own tokens or specify their backing.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">Daily refuel budget, $10k seed</th>
+<th style="text-align: right;">Actual 179-day spending</th>
+<th style="text-align: right;">Largest sampled spot error, finite supply</th>
+<th style="text-align: right;">Largest center error</th>
+<th style="text-align: right;">Treasury equity P&amp;L after refuels, excluding gas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">$0</td>
+<td style="text-align: right;">$0</td>
+<td style="text-align: right;">71.50%</td>
+<td style="text-align: right;">74.20%</td>
+<td style="text-align: right;">-1,504</td>
+</tr>
+<tr>
+<td style="text-align: right;">$1</td>
+<td style="text-align: right;">$179</td>
+<td style="text-align: right;">68.34%</td>
+<td style="text-align: right;">70.84%</td>
+<td style="text-align: right;">-1,604</td>
+</tr>
+<tr>
+<td style="text-align: right;">$3</td>
+<td style="text-align: right;">$537</td>
+<td style="text-align: right;">61.03%</td>
+<td style="text-align: right;">63.10%</td>
+<td style="text-align: right;">-1,788</td>
+</tr>
+<tr>
+<td style="text-align: right;">$10</td>
+<td style="text-align: right;">$1,790</td>
+<td style="text-align: right;">40.60%</td>
+<td style="text-align: right;">41.71%</td>
+<td style="text-align: right;">-2,624</td>
+</tr>
+<tr>
+<td style="text-align: right;">$30</td>
+<td style="text-align: right;">$5,370</td>
+<td style="text-align: right;">45.20%</td>
+<td style="text-align: right;">45.93%</td>
+<td style="text-align: right;">-5,862</td>
+</tr>
+<tr>
+<td style="text-align: right;">$100</td>
+<td style="text-align: right;">$5,496</td>
+<td style="text-align: right;">53.89%</td>
+<td style="text-align: right;">54.68%</td>
+<td style="text-align: right;">-6,108</td>
+</tr>
+</tbody>
+</table></div>
+<p>No tested refuel budget meets the full-history 3% spot requirement in the finite-supply base. Higher budgets are not monotonically better: quote-only additions alter inventory, seven-day release limits immediate support, and outstanding refuel shares can hit their cap. Budget is not necessarily money accepted or burned. At $50k seed, the zero-refuel spot error is <strong>70.91%</strong>; scaling seed alone does not fix the missing outside route. Tested zero-refuel debt cases of 0%, 25%, 50% and 100% of the launch boundary do not establish a sustainable limit.</p>
+<p>In the hypothetical outside-supply benchmark, <strong>zero refuels</strong> gives a maximum sampled spot error of <strong>2.31%</strong>, while the center is as much as <strong>73.63%</strong> away. It requires up to <strong>11,478 extra normalized tokens beyond recorded issuance</strong>. That gap must be funded and implemented before treating its tracking result as feasible. Good spot tracking and well-centered liquidity are different properties; the former can coexist with very poor depth and expensive execution.</p>
+<p><img alt="Historical parity, pool tracking and treasury equity" src="assets/fxswap-history.png"></p>
+<h2 id="calm-and-volatile-days-independent-fresh-launches">Calm and volatile days: independent fresh launches</h2>
+<p>Days were chosen using hourly realized log volatility over <strong>158 eligible days</strong>, before inspecting strategy P&amp;L: two around the 10th percentile, the middle pair and the two largest. Every selected minute file has 1,440 native bars. Zero-volume minutes remain in the feed; they are not independent trades. Selection and data-quality evidence are included in the download.</p>
+<p>The table uses $10k external seed, approximately $15.8k additional debt, finite issued supply, and <strong>no refuels</strong>. Price errors are measured after the modeled arbitrage at observed closes. Values are USDT; each row starts a new pool at that day's opening reference.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Local day</th>
+<th>Regime</th>
+<th style="text-align: right;">Hourly log RV</th>
+<th style="text-align: right;">Max spot error</th>
+<th style="text-align: right;">Max center error</th>
+<th style="text-align: right;">Seed LP vs holding its starting assets</th>
+<th style="text-align: right;">Treasury equity P&amp;L, excluding gas</th>
+<th style="text-align: right;">LP borrowers' equity P&amp;L</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-04-26</td>
+<td>calm</td>
+<td style="text-align: right;">0.70%</td>
+<td style="text-align: right;">0.43%</td>
+<td style="text-align: right;">1.10%</td>
+<td style="text-align: right;">+3</td>
+<td style="text-align: right;">-30</td>
+<td style="text-align: right;">+30</td>
+</tr>
+<tr>
+<td>2026-08-12</td>
+<td>calm</td>
+<td style="text-align: right;">0.71%</td>
+<td style="text-align: right;">0.39%</td>
+<td style="text-align: right;">0.86%</td>
+<td style="text-align: right;">-64</td>
+<td style="text-align: right;">-32</td>
+<td style="text-align: right;">-83</td>
+</tr>
+<tr>
+<td>2026-08-29</td>
+<td>median</td>
+<td style="text-align: right;">1.31%</td>
+<td style="text-align: right;">0.41%</td>
+<td style="text-align: right;">1.24%</td>
+<td style="text-align: right;">+24</td>
+<td style="text-align: right;">-37</td>
+<td style="text-align: right;">+72</td>
+</tr>
+<tr>
+<td>2026-06-09</td>
+<td>median</td>
+<td style="text-align: right;">1.31%</td>
+<td style="text-align: right;">0.41%</td>
+<td style="text-align: right;">1.01%</td>
+<td style="text-align: right;">-29</td>
+<td style="text-align: right;">-12</td>
+<td style="text-align: right;">-40</td>
+</tr>
+<tr>
+<td>2026-06-15</td>
+<td>high</td>
+<td style="text-align: right;">4.83%</td>
+<td style="text-align: right;">0.74%</td>
+<td style="text-align: right;">7.36%</td>
+<td style="text-align: right;">-710</td>
+<td style="text-align: right;">-400</td>
+<td style="text-align: right;">-874</td>
+</tr>
+<tr>
+<td>2026-05-24</td>
+<td>high</td>
+<td style="text-align: right;">5.86%</td>
+<td style="text-align: right;">1.30%</td>
+<td style="text-align: right;">5.82%</td>
+<td style="text-align: right;">-50</td>
+<td style="text-align: right;">-75</td>
+<td style="text-align: right;">-22</td>
+</tr>
+</tbody>
+</table></div>
+<p>On 15 June, IRR/USDT fell 7.50%, meaning the rial <strong>appreciated</strong> about 8.11% in USDT. The seed LP gained <strong>$411</strong> in marked asset value, but underperformed holding its starting assets by <strong>$710</strong>. Treasury equity fell <strong>$400</strong>, because the seed token liability also appreciated. LP borrowers lost <strong>$874</strong> of marked equity; their highest individual LP LTV reached <strong>92.79%</strong>. These are different views of the same accounting and must not be summed as independent losses.</p>
+<p><img alt="Actual minute closes on the six preselected days" src="assets/fxswap-selected-days.png"></p>
+<p>The $10/day-per-$10k-seed refuel cases and $50k seed cases are in the CSV/JSON. A fresh donation cannot fund a full day's movement immediately: release is spread over seven days and deposits can activate protection. The continuous replay starts April 25 and carries prior donations and pool state forward; April 26 is only its second day, whereas May/June stress dates have more mature state. Its daily P&amp;L is separately downloadable. The two views must not be mixed.</p>
+<p>Raising the arbitrage minimum profit from $0.50 to $25 makes the June 15 launch's maximum sampled spot error <strong>3.04%</strong>, so even that one-day case fails the tolerance under the less favorable execution threshold. A passing low-cost replay is not robust to congestion.</p>
+<h2 id="above-peg-debt-expansion-independently-funded-new-loans">Above-peg debt expansion: independently funded new loans</h2>
+<p>This separate sensitivity implements the proposed direction of issuing more debt above peg. After observed-close arbitrage, if spot exceeds 1.025 times external parity, a keeper triggers new 96% LP / 4% ETH loans toward 1.01 times parity. Borrowers buy and lock LP receipts under the same 87.4% pre-sale LTV rule, post ETH at 67% opening LTV, and sell their debt. The keeper uses the external reference for loan valuation and the trigger; it does not overwrite FXSwap's internal EMA.</p>
+<p>The model assumes willing, independently funded borrowers are always available up to a daily cap. No such demand or funding commitment has been observed. Caps are normalized own-token principal valued at launch, not fixed daily USDT amounts. Cumulative controller additions are capped at 100 times external seed, excluding launch debt. $500-per-$10k-seed cohorts are numerical flow steps; their count is not a measured gas workload.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">External seed</th>
+<th style="text-align: right;">Daily new-debt cap, launch units</th>
+<th style="text-align: right;">Refuel budget/day</th>
+<th style="text-align: right;">New debt added over history</th>
+<th style="text-align: right;">Net LP quote cash from new borrowers</th>
+<th style="text-align: right;">Gross ETH collateral posted at entry</th>
+<th style="text-align: right;">Largest sampled spot error</th>
+<th style="text-align: right;">Peak gross credit shortfall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">$10,000</td>
+<td style="text-align: right;">$5,000</td>
+<td style="text-align: right;">$0</td>
+<td style="text-align: right;">$620,000</td>
+<td style="text-align: right;">$64,904</td>
+<td style="text-align: right;">$27,506</td>
+<td style="text-align: right;">38.41%</td>
+<td style="text-align: right;">$238</td>
+</tr>
+<tr>
+<td style="text-align: right;">$10,000</td>
+<td style="text-align: right;">$5,000</td>
+<td style="text-align: right;">$10</td>
+<td style="text-align: right;">$615,000</td>
+<td style="text-align: right;">$64,046</td>
+<td style="text-align: right;">$27,237</td>
+<td style="text-align: right;">38.85%</td>
+<td style="text-align: right;">$238</td>
+</tr>
+<tr>
+<td style="text-align: right;">$10,000</td>
+<td style="text-align: right;">$5,000</td>
+<td style="text-align: right;">$30</td>
+<td style="text-align: right;">$600,000</td>
+<td style="text-align: right;">$61,893</td>
+<td style="text-align: right;">$26,463</td>
+<td style="text-align: right;">39.12%</td>
+<td style="text-align: right;">$238</td>
+</tr>
+<tr>
+<td style="text-align: right;">$10,000</td>
+<td style="text-align: right;">$20,000</td>
+<td style="text-align: right;">$0</td>
+<td style="text-align: right;">$1,000,000</td>
+<td style="text-align: right;">$110,562</td>
+<td style="text-align: right;">$46,132</td>
+<td style="text-align: right;">35.79%</td>
+<td style="text-align: right;">$592</td>
+</tr>
+<tr>
+<td style="text-align: right;">$10,000</td>
+<td style="text-align: right;">$20,000</td>
+<td style="text-align: right;">$10</td>
+<td style="text-align: right;">$1,000,000</td>
+<td style="text-align: right;">$110,885</td>
+<td style="text-align: right;">$46,308</td>
+<td style="text-align: right;">36.43%</td>
+<td style="text-align: right;">$592</td>
+</tr>
+<tr>
+<td style="text-align: right;">$10,000</td>
+<td style="text-align: right;">$20,000</td>
+<td style="text-align: right;">$30</td>
+<td style="text-align: right;">$1,000,000</td>
+<td style="text-align: right;">$110,325</td>
+<td style="text-align: right;">$46,136</td>
+<td style="text-align: right;">36.64%</td>
+<td style="text-align: right;">$592</td>
+</tr>
+<tr>
+<td style="text-align: right;">$50,000</td>
+<td style="text-align: right;">$100,000</td>
+<td style="text-align: right;">$50</td>
+<td style="text-align: right;">$5,000,000</td>
+<td style="text-align: right;">$549,447</td>
+<td style="text-align: right;">$229,611</td>
+<td style="text-align: right;">35.38%</td>
+<td style="text-align: right;">$2,963</td>
+</tr>
+</tbody>
+</table></div>
+<p>The $10k-seed / $20k daily-cap / $10 daily-refuel case reaches <strong>$1,015,803 additional debt</strong>, including the launch book, and spends <strong>$1,790</strong> on refuels. Treasury seed-equity P&amp;L is <strong>-4,677</strong>, excluding gas and any allocation of borrower credit losses. Its worst ETH cohort reaches <strong>114.56% LTV</strong>; peak gross ETH shortfall is <strong>$592</strong>. Healthy newer ETH loans do not offset underwater older loans in this gross-shortfall metric.</p>
+<p>None of these bounded expansion scenarios passes 3%. The faster cases exhaust their 100-times-seed cumulative debt-addition cap. This does not rule out another controller, larger funding, different parameters, a funded inventory withdrawal/redemption rule or a matching-currency quote. It shows the cost and failure boundary of the specified policies. A successful policy must also pass during pauses, thin demand and stale reports.</p>
+<p>New LP receipt LTV is 87.4% <strong>before debt sale</strong>; sales can immediately change collateral value, particularly when the pool trades above external parity. The production design needs a post-action health requirement. <code>lp_borrower_equity_pnl</code> in the growth output measures changes after each entry's marked equity contribution; it is not cash-based return on investment. Net LP cash is signed and can be negative for individual premium-capture loans. ETH collateral posted is gross and does not subtract debt-sale proceeds.</p>
+<p>This sensitivity still does not execute liquidations, the proposed pending-liquidation sponsorship queue, repayments or hedges. Gross shortfalls are exposures requiring funded resolution, not realized losses. A peak shortfall must not be added to final treasury P&amp;L from another timestamp. A treasury-run controller would also need its own loan-call gas and collateral budget; the external-borrower assumption does not provide those for free.</p>
+<h2 id="loss-definitions-and-eth-exposure">Loss definitions and ETH exposure</h2>
+<ul>
+<li><strong>LP asset P&amp;L:</strong> final recoverable quote plus own tokens marked at external parity, minus the post-issuance starting LP claim. Its starting inventory includes issuance-related fees. A separate launch-to-final value is saved.</li>
+<li><strong>LP versus HODL:</strong> compare that final claim with holding the same post-issuance quantities outside the AMM. It includes fees, adverse selection and any refuel subsidy; it is not isolated textbook impermanent loss.</li>
+<li><strong>Treasury equity:</strong> treasury seed LP claim minus bootstrap-token liability minus all accepted refuel principal. The P&amp;L starts immediately after issuance. Gas, overhead, interest and hedge income are excluded.</li>
+<li><strong>Borrower equity:</strong> recoverable collateral less debt at the external reference, with P&amp;L starting after entry; LP and ETH cohorts are marked individually. ETH collateral uses its independent history.</li>
+<li><strong>Gross credit shortfall:</strong> positive debt value minus collateral value. It is a marked exposure before settlement costs, not a realized liquidation loss. No liquidation threshold, execution delay or funded loss waterfall is adopted in this replay.</li>
+</ul>
+<p>For the continuous $10k-seed/no-refuel base, seed LP asset P&amp;L is <strong>-5,656</strong>, LP versus HODL is <strong>+84</strong>, and treasury equity P&amp;L is <strong>-1,504</strong>. Maximum marked LP LTV is <strong>87.70%</strong> and maximum ETH LTV is <strong>92.29%</strong>. The maximum gross collateral shortfall is <strong>$0</strong>. This can coexist with a failed peg; solvency and exchange-price tracking are different tests.</p>
+<p>At 60% opening ETH LTV, the hourly sensitivity reaches <strong>82.65%</strong> ETH LTV and <strong>$0</strong> maximum gross ETH shortfall. At 75% opening ETH LTV, the hourly sensitivity reaches <strong>103.31%</strong> ETH LTV and <strong>$18</strong> maximum gross ETH shortfall. Hourly ETH marks cannot establish intrahour liquidation safety. These scenarios do not include the cost of closing or hedging a position.</p>
+<h2 id="daily-refueling-and-eth-budget">Daily refueling and ETH budget</h2>
+<p>There is <strong>no demonstrated minimum refuel spend that makes this base design meet 3% throughout the history</strong>. Tested $0–$100/day per $10k seed are scenarios, not operating recommendations. Refuels are an unrecoverable token expense, while gas pays for the deposit transaction. Shares burned measure buffer consumption and are not another invoice. Unburned donations are still not treasury-withdrawable assets.</p>
+<p>Assume one accepted quote-only refuel per day at <strong>250,000 gas</strong>, with token approvals already in place. This gas amount is an unmeasured planning input. FXSwap does not require a separate V3 range-reset transaction; eligible swaps/deposits perform recentering internally, with extra gas that must be measured. Ordinary user/arb gas is paid by those callers unless treasury explicitly sponsors them.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">Effective gas price</th>
+<th style="text-align: right;">One currency, ETH/day</th>
+<th style="text-align: right;">Three currencies, ETH/day</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1 gwei</td>
+<td style="text-align: right;">0.00025</td>
+<td style="text-align: right;">0.00075</td>
+</tr>
+<tr>
+<td style="text-align: right;">5 gwei</td>
+<td style="text-align: right;">0.00125</td>
+<td style="text-align: right;">0.00375</td>
+</tr>
+<tr>
+<td style="text-align: right;">20 gwei</td>
+<td style="text-align: right;">0.00500</td>
+<td style="text-align: right;">0.01500</td>
+</tr>
+</tbody>
+</table></div>
+<p>For illustration only, at ETH = $2,000 and 5 gwei, a <strong>$10 token refuel costs 0.005 ETH equivalent plus 0.00125 ETH gas = 0.00625 ETH/day per market</strong>. A $50 token refuel is 0.02625 ETH/day including that gas. Across three markets those examples are 0.01875 and 0.07875 ETH/day. They do not meet a demonstrated peg guarantee and do not include collateral capital, liquidations, oracle reports, custody, bridges, infrastructure or security. Actual token spending converted at contemporaneous historical ETH prices is saved separately as <code>refuel_eth_equivalent</code>; it excludes gas.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Finite-supply historical case</th>
+<th style="text-align: right;">Token spending over 179 days</th>
+<th style="text-align: right;">Mean token funding in ETH/day at historical ETH marks</th>
+<th style="text-align: right;">Mean total ETH/day adding assumed 5-gwei refuel gas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$10,000 seed, $0/day budget</td>
+<td style="text-align: right;">$0</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">0.000000</td>
+</tr>
+<tr>
+<td>$10,000 seed, $1/day budget</td>
+<td style="text-align: right;">$179</td>
+<td style="text-align: right;">0.000481</td>
+<td style="text-align: right;">0.001731</td>
+</tr>
+<tr>
+<td>$10,000 seed, $10/day budget</td>
+<td style="text-align: right;">$1,790</td>
+<td style="text-align: right;">0.004805</td>
+<td style="text-align: right;">0.006055</td>
+</tr>
+<tr>
+<td>$10,000 seed, $30/day budget</td>
+<td style="text-align: right;">$5,370</td>
+<td style="text-align: right;">0.014416</td>
+<td style="text-align: right;">0.015666</td>
+</tr>
+<tr>
+<td>$50,000 seed, $50/day budget</td>
+<td style="text-align: right;">$8,950</td>
+<td style="text-align: right;">0.024026</td>
+<td style="text-align: right;">0.025276</td>
+</tr>
+</tbody>
+</table></div>
+<p>This combines historical ETH conversion with a hypothetical constant gas price; it is not a reconstruction of actual transaction fees. Zero refuels means zero refuel-call gas in this table. Download the <a href="downloads/fxswap_gas_budget.json">gas assumptions and calculations</a>.</p>
+<p>The same fixed-FX capacity multiples can be applied to normalized TRY/ARS pools with identical parameters. <strong>IRR history does not estimate TRY/ARS refuel demand or losses.</strong> Their feeds, counterparties and economic paths require separate replays. Pairing matching local-currency savings shares changes the reference from FX drift to a savings ratio and partner-peg risk; it is not tested by this USDT-quote replay.</p>
+<h2 id="design-implications">Design implications</h2>
+<p>FXSwap removes the need to manage V3 ticks, but not the need for external price discovery, executable token supply, funded stabilization and conservative lending valuation. Before a pilot, specify an accountable mechanism for above-peg issuance or inventory conversion, real exit access and backing, then replay it without violating the 96/4 debt policy. Consider the matching-currency partner route separately. Optimize concentration/EMA/fees and refuel scheduling against adverse paths; copying ZCHF settings does not prove suitability for IRR.</p>
+<p>Sampling limits remain material: closes omit path order and intrabar fills, missing bars mask events, zero-volume bars may be stale, and a single exchange is not the proposed composite oracle. OHLC/OLHC stress outputs assign synthetic path order and times; they are sensitivity scenarios with hindsight path construction, not observed ticks or deployable strategy evidence. Even a passing sampled error cannot prove continuous 3% compliance. No automatic currency peg follows from the pool's oracleless swap implementation. The <a href="rfp.html">RFP</a> and <a href="security.html">security criteria</a> require these gaps to be resolved.</p>
+<h2 id="downloads-and-reproduction">Downloads and reproduction</h2>
+<ul>
+<li><a href="downloads/fxswap_backtest.json">Complete assumptions and results</a></li>
+<li><a href="downloads/fxswap_capacity.json">Static capacity details</a></li>
+<li><a href="downloads/fxswap_summaries.csv">All run summaries</a></li>
+<li><a href="downloads/fxswap_daily.csv">Continuous and cold daily P&amp;L</a></li>
+<li><a href="downloads/fxswap_cold_days.csv">Selected cold-day results</a></li>
+<li><a href="downloads/fxswap-history.pdf">Historical chart, PDF</a></li>
+<li><a href="downloads/fxswap-selected-days.pdf">Selected-day charts, PDF</a></li>
+<li><a href="downloads/fxswap_growth.json">Above-peg expansion assumptions and results</a></li>
+<li><a href="downloads/fxswap_growth.csv">Above-peg expansion summary CSV</a></li>
+<li><a href="downloads/reproducibility.zip">Source observations, archived inputs, model, tests and runners</a></li>
+</ul>
+<pre><code class="language-sh">python3 -m unittest discover -s tests -v
+python3 tools/run_fxswap_experiments.py
+python3 tools/run_fxswap_controller.py
+python3 tools/write_fxswap_report.py
+</code></pre>
+<p>Replay uses Python 3.11+ and its standard library. Plotting additionally needs Matplotlib: <code>python3 tools/plot_fxswap_results.py</code>. Raw and normalized input SHA-256 hashes, exact request URLs and coverage are archived. Public exchange history can be revised; replay the included archive for this result. <a href="https://api-docs.wallex.ir/">Wallex API reference</a>, <a href="https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints#klinecandlestick-data">Binance kline definitions</a>, <a href="https://sourcify.dev/server/v2/contract/1/0x027B40F5917FCd0eac57d7015e120096A5F92ca9?fields=all">verified source retrieval</a>.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>
