@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>Operations and launch gates · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="architecture.html">Architecture</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html" aria-current="page">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="operations-and-launch-gates">Operations and launch gates</h1>
+<p>Operate each currency against its own collateral, liquidity, oracle, and settlement budgets. Gross pool TVL includes the system's own tokens and cannot fund external obligations by itself.</p>
+<h2 id="capital-plan">Capital plan</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Planning treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Seed LP value</td>
+<td>$10k to $50k per currency, valued at external peg</td>
+</tr>
+<tr>
+<td>External seed quote</td>
+<td>About half of centered gross LP; exact inventory follows the range</td>
+</tr>
+<tr>
+<td>Seed stablecoin backing</td>
+<td>Separate launch liability, funded and recorded explicitly</td>
+</tr>
+<tr>
+<td>Borrower collateral</td>
+<td>New capital supplied by borrowers, distinct from seed liquidity</td>
+</tr>
+<tr>
+<td>Liquidation backstop</td>
+<td>Committed capital sized to stressed residual obligations</td>
+</tr>
+<tr>
+<td>Oracle operations</td>
+<td>Data licenses, reporters, monitoring, key custody, and incident coverage</td>
+</tr>
+<tr>
+<td>Security work</td>
+<td>Independent model review, implementation review, audits, remediation, and monitoring</td>
+</tr>
+</tbody>
+</table></div>
+<p>The seed range is a liquidity budget, not an all-inclusive project budget. Obtain itemized proposals before estimating deployment feasibility. ETH collateral from borrowers is backing, but it does not provide immediate quote reserves until a funded liquidation or sale occurs.</p>
+<h2 id="pilot-sequence">Pilot sequence</h2>
+<p>Begin with one currency, one reviewed LP collateral adapter, and either a disabled ETH branch or a separately capped branch supported by funded liquidation capacity. Select the currency based on reliable benchmark data, user demand, legal and operational feasibility, and external settlement liquidity. This sequence does not preselect TRY, IRR, or ARS.</p>
+<p>Expand collateral or add a second currency after successful exits, liquidations, report outages, manager actions, and incident drills have been observed under caps. At $10k seed, fixed operating and keeper costs may dominate activity; increasing gross issued debt does not reduce that operational risk.</p>
+<h2 id="live-controls">Live controls</h2>
+<p>Track total and residual debt, collateral by recoverable asset, active quote reserves, external redemption capacity, sell-to-edge capacity, debt concentration, ETH issuance headroom, backstop coverage, pending flags by age and value, oracle source health, report skew, and LP manager actions. Include accrued interest and seed-token liabilities in total exposure.</p>
+<p>Stop new exposure when configured depth, backstop, oracle, or concentration limits fail. Do not rely on a future DBR issuance cut to remedy an immediate settlement shortfall. Preserve repayments and other reviewed risk-reducing actions.</p>
+<h2 id="roles-and-incidents">Roles and incidents</h2>
+<p>Separate report publishers, collateral manager, risk operator, treasury custodian, emergency guardian, and governance. Use least privilege, explicit spending and target restrictions, and timelocks for expansions. Fast restrictions must not grant custody over unrelated borrower assets.</p>
+<p>Maintain runbooks for data-source conflict, lost signing quorum, genuine devaluation, ETH gaps, quote depeg or cooldown, keeper congestion, stuck queue, manager compromise, and offchain hedge loss. Each runbook identifies the triggers, available onchain actions, funded obligations, responsible operator, escalation, and recovery criteria.</p>
+<p>Legal review must address the actual issuing entity, user locations, synthetic FX product, sanctions exposure, data terms, custody, and offchain trading arrangements before launch. No legal conclusion is implied by the technical design.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

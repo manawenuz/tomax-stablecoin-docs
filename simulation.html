@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>Issuance simulation and capacity · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html" aria-current="page">Simulation</a><a href="results.html">Result tables</a><a href="architecture.html">Architecture</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="issuance-simulation-and-capacity">Issuance simulation and capacity</h1>
+<p>The baseline has no finite issuance ceiling at the 1.5% lower boundary under continuing proportional LP entry. It does have finite secondary selling capacity at every point. Those statements describe AMM inventory; they do not establish solvency, holder demand, or a launch debt ceiling.</p>
+<h2 id="definitions-and-assumptions">Definitions and assumptions</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initial total LP value at external FX peg</td>
+<td>$10,000 per currency; scale cases $20,000 and $50,000</td>
+</tr>
+<tr>
+<td>Stable token price at start</td>
+<td>1 after normalizing the external FX peg</td>
+</tr>
+<tr>
+<td>Active range</td>
+<td>0.985 to 1.015 of the initial peg</td>
+</tr>
+<tr>
+<td>Share of additional debt backed by LP</td>
+<td>90%, measured by debt issued</td>
+</tr>
+<tr>
+<td>Share backed by independently collateralized ETH</td>
+<td>10%</td>
+</tr>
+<tr>
+<td>Maximum LP LTV and utilization</td>
+<td>95% maximum multiplied by 92% utilization</td>
+</tr>
+<tr>
+<td>Actual debt divided by LP collateral value</td>
+<td>87.4%</td>
+</tr>
+<tr>
+<td>Principal sold</td>
+<td>All new LP and ETH debt</td>
+</tr>
+<tr>
+<td>LP position range</td>
+<td>All positions use the same bounds</td>
+</tr>
+<tr>
+<td>Seed token liabilities</td>
+<td>Pre-existing and separately backed; excluded from additional debt</td>
+</tr>
+<tr>
+<td>ETH collateral</td>
+<td>Deposited separately; its LTV does not change the modeled debt sale</td>
+</tr>
+<tr>
+<td>Base swap fees</td>
+<td>Zero, with a separate 5 bps sensitivity</td>
+</tr>
+<tr>
+<td>Debt cohort</td>
+<td>$100 for the $10,000 seed, with a finer-step convergence check</td>
+</tr>
+</tbody>
+</table></div>
+<p>One stable token is normalized to $1 at the initial FX report. Dollar amounts for minted or sold tokens mean their <strong>external peg value</strong>, not their AMM execution proceeds. The quote asset is modeled as an immediately transferable $1 asset. sUSDe would require its own vault exchange rate, market-price risk, liquidity, and cooldown treatment.</p>
+<p>The simulation holds FX fixed, models no interest accrual, allows no LP withdrawals, assumes no independent token holders sell, and provides no collateral liquidation or backstop model. It uses continuous V3 prices rather than discrete ticks and token rounding. Fees accrue outside active principal and are not reinvested. These restrictions make it an entry-flow model.</p>
+<h2 id="transaction-sequence">Transaction sequence</h2>
+<p>For each cohort of additional debt D:</p>
+<ol>
+<li>Allocate 0.9 D to LP loans and 0.1 D to ETH loans.</li>
+<li>Set required new LP collateral value to 0.9 D / 0.874.</li>
+<li>Solve for the stablecoin purchase that permits depositing that collateral in the <strong>post-purchase</strong> pool ratio.</li>
+<li>Execute the purchase and deposit both legs into the common range.</li>
+<li>Mint and sell the LP debt.</li>
+<li>Mint and sell the ETH debt, against separately provided ETH collateral.</li>
+<li>Record spot, active assets, borrower cash contribution, and extra selling capacity to the lower edge.</li>
+</ol>
+<p>The fixed 80/20 example is a useful snapshot, not an input imposed on every borrower. Purchasing the stable leg changes the deposit ratio. Reusing a permanent 80% purchase offset would overstate that offset for large entries.</p>
+<h2 id="v3-accounting">V3 accounting</h2>
+<p>Let p be quote per stable token, a and b the range bounds, and L active liquidity. The implementation follows the reserve equations in the <a href="https://app.uniswap.org/whitepaper-v3.pdf">Uniswap V3 whitepaper</a>:</p>
+<pre><code class="language-text">x = L * (1 / sqrt(p) - 1 / sqrt(b))
+y = L * (sqrt(p) - sqrt(a))
+LP collateral value at external peg = x + y
+</code></pre>
+<p>Purchases and sales change square-root price exactly within this range. The model buys exact stable output, deposits both legs, and updates active liquidity before selling the new principal. Peg-based inventory accounting is an explicit research assumption; a production LP valuation must withstand balance manipulation, range changes, and oracle failure.</p>
+<h2 id="why-issuance-does-not-reach-the-boundary">Why issuance does not reach the boundary</h2>
+<p>Let lambda be actual LP LTV and w the LP share of new debt. For each unit of new LP collateral value, total new debt is lambda / w. At zero fees, buying and redepositing the stable leg cancels that leg's inventory change; selling new debt adds lambda / w units of stablecoin to pool principal.</p>
+<p>At a stationary price, the pool's stablecoin share at peg valuation therefore approaches:</p>
+<pre><code class="language-text">r = lambda / w = 0.874 / 0.9 = 0.971111...
+</code></pre>
+<p>There is still a positive quote share. Solving the V3 reserve equations for that inventory yields p = 0.98586008, or a 1.41399165% discount. This is an infinitesimal-cohort limiting argument, confirmed by progressively larger finite issuance runs.</p>
+<p>For this mechanism, positive asymptotic quote inventory requires w &gt; lambda at zero fees. At w = lambda the path approaches the lower edge with vanishing headroom; when w &lt; lambda it reaches the edge at finite issuance. With only 85% LP-backed debt, the model reaches the boundary at approximately $189,833 of additional debt for a $10,000 seed.</p>
+<p>The 87.4% actual LTV is a material condition. If users can later draw up to the full 95% maximum without adding LP, the assumed path no longer applies. At 95% actual LTV and 90% LP-backed debt, issuance reaches the boundary at finite debt. A utilization target is not an enforceable maximum. Interest or fee tokens distributed and sold without new LP also consume quote capacity.</p>
+<p>With non-reinvested input fees f, active stable input is reduced and the ideal stationary share becomes lambda * (1-f) / w. Fees are not a reason to enlarge a production risk limit.</p>
+<h2 id="results-for-10k-to-50k-seed-liquidity">Results for 10k to 50k seed liquidity</h2>
+<p>Results scale linearly with capital while gas, transaction granularity, market depth elsewhere, and operating overhead do not. Equal debt-to-seed ratios produce equal modeled spot discounts.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">Discount</th>
+<th style="text-align: right;">Debt with $10k seed</th>
+<th style="text-align: right;">Debt with $20k seed</th>
+<th style="text-align: right;">Debt with $50k seed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0.717%</td>
+<td style="text-align: right;">$10,000</td>
+<td style="text-align: right;">$20,000</td>
+<td style="text-align: right;">$50,000</td>
+</tr>
+<tr>
+<td style="text-align: right;">1.181%</td>
+<td style="text-align: right;">$50,000</td>
+<td style="text-align: right;">$100,000</td>
+<td style="text-align: right;">$250,000</td>
+</tr>
+<tr>
+<td style="text-align: right;">1.286%</td>
+<td style="text-align: right;">$100,000</td>
+<td style="text-align: right;">$200,000</td>
+<td style="text-align: right;">$500,000</td>
+</tr>
+<tr>
+<td style="text-align: right;">1.359%</td>
+<td style="text-align: right;">$250,000</td>
+<td style="text-align: right;">$500,000</td>
+<td style="text-align: right;">$1,250,000</td>
+</tr>
+<tr>
+<td style="text-align: right;">1.400%</td>
+<td style="text-align: right;">$1,000,000</td>
+<td style="text-align: right;">$2,000,000</td>
+<td style="text-align: right;">$5,000,000</td>
+</tr>
+</tbody>
+</table></div>
+<p>These are additional debt scenarios, not recommended issuance caps. The 1.5% boundary alone permits arbitrarily large modeled issuance with continued outside borrower capital.</p>
+<h2 id="secondary-selling-envelopes">Secondary selling envelopes</h2>
+<p>After entry, a holder may sell without adding LP. A practical depth constraint can require the pool to absorb a specified fraction of additional debt with <strong>no intervening new borrowing, liquidity injection, or redemption</strong>. The generated envelope table gives the resulting conditional issuance amounts.</p>
+<p>The percentage is an assumed simultaneous exit, not a measured probability. These envelopes exclude seed-token liabilities and therefore overstate a full-supply run envelope unless those liabilities are added to the denominator. They also exclude liquidations, LP withdrawals, devaluation gaps, and correlated selling across the three currencies.</p>
+<p><a href="results.html">Generated tables</a> contain the calculated envelopes and fee sensitivity. Independent simulations must test adverse ordering, discrete ticks, actual quote assets, withdrawals, debt repayment, vault closures, rate changes, liquidation shortfalls, FX gaps, and oracle outages before a production cap is proposed.</p>
+<h2 id="ordering-and-actual-deployment">Ordering and actual deployment</h2>
+<p>The modeled cohort adds LP before selling its proportional ETH debt. A global 90/10 target does not prevent an ETH-first burst from consuming the seed quote reserve before LP arrives. Enforce ETH mint headroom against realized liquidity and funded redemption capacity, not expected future LP deposits.</p>
+<p>A static range follows neither local FX nor sUSDe appreciation. Repositioning changes custody, inventory, price exposure, and execution costs; those effects require a separate stress model. A 1.5% <em>spot</em> discount also does not include swap fees, gas, redemption fees, or oracle uncertainty in the user's execution price.</p>
+<h2 id="reproduce-and-inspect">Reproduce and inspect</h2>
+<pre><code class="language-sh">python3 -m unittest discover -s tests -v
+python3 -m model.simulate --output results
+</code></pre>
+<p>Download <a href="downloads/issuance.csv">CSV output</a>, <a href="downloads/simulation.json">JSON scenarios</a>, or the <a href="downloads/reproducibility.zip">model and tests</a>. Source files and deterministic checks are included in the private research repository. The downloadable model is research code, not a Solidity implementation.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

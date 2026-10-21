@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>Decisions and open questions · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="architecture.html">Architecture</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html" aria-current="page">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="decisions-and-open-questions">Decisions and open questions</h1>
+<h2 id="accepted-research-assumptions">Accepted research assumptions</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Current scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Currency products</td>
+<td>IRR, TRY, and ARS tracking tokens</td>
+</tr>
+<tr>
+<td>IRR benchmark</td>
+<td>Composite accessible market data, including exchange, app, and curated dealer sources</td>
+</tr>
+<tr>
+<td>Primary collateral</td>
+<td>Locked managed LP positions containing the issued token</td>
+</tr>
+<tr>
+<td>Additional collateral</td>
+<td>Reviewed liquid volatile assets, starting with ETH as the research example</td>
+</tr>
+<tr>
+<td>Research debt mix</td>
+<td>90% LP-backed and 10% ETH-backed additional debt</td>
+</tr>
+<tr>
+<td>Research actual LP LTV</td>
+<td>95% maximum multiplied by 92% utilization equals 87.4%</td>
+</tr>
+<tr>
+<td>Seed liquidity cases</td>
+<td>$10k to $50k total LP value per currency</td>
+</tr>
+<tr>
+<td>Initial range</td>
+<td>1.5% below to 1.5% above the external peg</td>
+</tr>
+<tr>
+<td>Oracle submission</td>
+<td>Users or keepers sponsor authenticated updates</td>
+</tr>
+<tr>
+<td>Settlement objective</td>
+<td>Conserve gas while keeping debt and price exposure fully accounted for</td>
+</tr>
+<tr>
+<td>Repository sharing</td>
+<td>Private research source and separately public documentation on Pages</td>
+</tr>
+</tbody>
+</table></div>
+<p>The 12.6% difference between LP collateral and actual debt is equity. No 8% fee or withheld debt-token distribution is assumed.</p>
+<h2 id="proposed-requirements">Proposed requirements</h2>
+<p>Use independently verified source observations, recoverable LP inventory, atomic own-token netting, separate market budgets, capped ETH issuance, funded settlement, bounded queues, and permissions that can restrict exposure without seizing unrelated collateral. Treat an offchain hedge as optional management of funded inventory.</p>
+<h2 id="choices-before-implementation">Choices before implementation</h2>
+<ul>
+<li>Launch currency and deployment chain, including sequencer and bridging assumptions.</li>
+<li>Canonical native token units, decimals, benchmark definitions, market hours, and source licenses for every currency.</li>
+<li>Interest engine, gross versus residual borrowing-cost basis, borrowing-right supply policy, and revenue split.</li>
+<li>Direct redemption rights, fees, collateral routing, and outage behavior.</li>
+<li>Quote asset and acceptable delays, custody, market-price risk, and redemption routes.</li>
+<li>ETH borrow LTV, liquidation threshold, debt ceilings, and funded backstop capacity.</li>
+<li>Permitted LP ranges, pooling or wrappers, manager powers, and valuation during manipulation.</li>
+<li>Queue deadlines, curing rights, loss and surplus allocation, and sponsorship caps.</li>
+<li>Governance, upgrades, emergency roles, signing quorum, and key management.</li>
+<li>Operating entity, user access, legal review, independent reviewers, and security budget.</li>
+</ul>
+<p>Open choices are not permission to deploy defaults. The RFP requires proposals to resolve them with evidence before production work.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

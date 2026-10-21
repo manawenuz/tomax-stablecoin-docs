@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>Primary sources · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="architecture.html">Architecture</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html" aria-current="page">Sources</a></nav><main id="content"><article><h1 id="primary-sources">Primary sources</h1>
+<p>These references support the protocol precedents and infrastructure behavior discussed in the research. The simulation's assumptions and proposed Tomax requirements are separate design work. Reference review date: 21 October 2026.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Relevant fact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://app.uniswap.org/whitepaper-v3.pdf">Uniswap V3 whitepaper</a></td>
+<td>Concentrated-liquidity reserve and square-root-price equations</td>
+</tr>
+<tr>
+<td><a href="https://developers.uniswap.org/docs/get-started/concepts/liquidity-providers/concentrated-liquidity">Uniswap concentrated liquidity</a></td>
+<td>Range-dependent active liquidity and one-sided inventory</td>
+</tr>
+<tr>
+<td><a href="https://developers.uniswap.org/docs/get-started/concepts/hooks">Uniswap hooks</a></td>
+<td>V4 callbacks can customize pool operations</td>
+</tr>
+<tr>
+<td><a href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dbr">FiRM borrowing rights</a></td>
+<td>Credits consumed in proportion to debt and time</td>
+</tr>
+<tr>
+<td><a href="https://www.inverse.finance/governance/proposals/mills/320">FiRM LP collateral proposal</a></td>
+<td>An LP containing DOLA and an external asset accepted as collateral</td>
+</tr>
+<tr>
+<td><a href="https://docs.liquity.org/v2-faq/redemptions-and-delegation">Liquity redemptions</a></td>
+<td>Permissionless redemptions and interest-rate ordering</td>
+</tr>
+<tr>
+<td><a href="https://docs.liquity.org/v2-faq/bold-and-earn">Liquity Stability Pools</a></td>
+<td>Debt offset in exchange for collateral</td>
+</tr>
+<tr>
+<td><a href="https://www.liquity.org/blog/liquity-v2-redeployment">Liquity V2 redeployment</a></td>
+<td>V2 was redeployed following a Stability Pool issue; production lineage is not a blanket assurance</td>
+</tr>
+<tr>
+<td><a href="https://docs.aladdin.club/f-x-protocol">Original f(x) design</a></td>
+<td>Low-beta fETH and leveraged xETH, distinct from a hard fiat peg</td>
+</tr>
+<tr>
+<td><a href="https://docs.aladdin.club/f-x-protocol/introduction-of-fxusd/introduction">fxUSD introduction</a></td>
+<td>Senior reserve claims and the fxUSD structure</td>
+</tr>
+<tr>
+<td><a href="https://docs.pyth.network/price-feeds/core/pull-updates">Pyth pull updates</a></td>
+<td>Atomic user-submitted authenticated updates and application actions</td>
+</tr>
+<tr>
+<td><a href="https://data.chain.link/feeds/ethereum/mainnet/try-usd">Chainlink TRY feed listing</a></td>
+<td>Listed Ethereum TRY/USD feed; deployed suitability and liveness still require checks</td>
+</tr>
+<tr>
+<td><a href="https://apps.apple.com/us/app/chand/id1524200188">Chand application listing</a></td>
+<td>The application's description states that it aggregates sources</td>
+</tr>
+<tr>
+<td><a href="https://apidocs.nobitex.ir/">Nobitex API documentation</a></td>
+<td>Order-book data format; use current venue-specific units and availability</td>
+</tr>
+<tr>
+<td><a href="https://docs.ethena.fi/solution-design/staking-usde">Ethena staking design</a></td>
+<td>sUSDe share accounting and unstaking cooldown</td>
+</tr>
+<tr>
+<td><a href="https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site">GitHub Pages creation</a></td>
+<td>Public Pages and private-source plan requirements</td>
+</tr>
+<tr>
+<td><a href="https://docs.github.com/en/rest/pages/pages">GitHub Pages REST API</a></td>
+<td>Pages configuration and build status</td>
+</tr>
+</tbody>
+</table></div>
+<p>No live FX prices, annual inflation rates, protocol yields, or provider price quotes are used as simulation inputs.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

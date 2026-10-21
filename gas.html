@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>Gas requirements · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="architecture.html">Architecture</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html" aria-current="page">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="gas-requirements">Gas requirements</h1>
+<p>Gas efficiency must preserve correct valuation and recoverability during congestion. Optimize duplicated work and transaction structure before postponing unfunded risk.</p>
+<h2 id="candidate-optimizations">Candidate optimizations</h2>
+<ul>
+<li>Accrue debt through reviewed aggregate indices rather than touching every vault.</li>
+<li>Verify one report per market per transaction and reuse it across a bounded batch.</li>
+<li>Batch independent debt burns and collateral-claim transfers where accounting remains deterministic.</li>
+<li>Net recovered own tokens against the corresponding debt before requiring external token sourcing.</li>
+<li>Avoid external asset swaps in the critical liquidation path when a funded backstop can accept collateral claims.</li>
+<li>Use bounded storage layouts and numeric widths supported by explicit lifetime and overflow bounds.</li>
+<li>Keep event data sufficient for offchain monitoring without requiring onchain iteration through all vaults.</li>
+</ul>
+<p>Packing, unchecked arithmetic, custom signature aggregation, and cross-vault netting require proofs and measurements; none is a default requirement.</p>
+<h2 id="benchmark-deliverables">Benchmark deliverables</h2>
+<p>The deployment chain is undecided. Proposers must report exact gas and fees on their nominated chain and version, including calldata or L1 data costs on L2s. Report typical, maximum supported, and failure-path costs; do not present a dollar estimate without the gas-price and asset-price assumptions.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Required variants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LP entry</td>
+<td>Existing report, fresh report, multiple signatures, small and large position</td>
+</tr>
+<tr>
+<td>ETH entry</td>
+<td>Fresh FX plus collateral report, exposure-cap rejection</td>
+</tr>
+<tr>
+<td>Repay and close</td>
+<td>Normal, out-of-range LP, oracle outage where allowed</td>
+</tr>
+<tr>
+<td>Flag vault</td>
+<td>First flag, repeat attempt, genuine gap, invalid report</td>
+</tr>
+<tr>
+<td>Funded takeover</td>
+<td>LP recovery and netting, ETH collateral claim, partial settlement</td>
+</tr>
+<tr>
+<td>Queue processing</td>
+<td>One item, maximum batch, dust, failed recovery, capped sponsorship</td>
+</tr>
+<tr>
+<td>Reposition LP</td>
+<td>Bounds, slippage, approvals, failed health recheck</td>
+</tr>
+<tr>
+<td>Add collateral</td>
+<td>Registry change and adapter initialization</td>
+</tr>
+</tbody>
+</table></div>
+<p>Each quote must identify reused dependencies, report byte size, signatures, storage accesses, external calls, execution cap, and keeper compensation. Set gas targets only after comparable chain-specific benchmarks exist.</p>
+<h2 id="queue-sponsorship">Queue sponsorship</h2>
+<p>New borrowers can sponsor a capped amount of old settlement. Include this in the displayed borrowing cost before signing. A queue must progress without new borrowing, and a risk-reducing repayment must not trigger an unbounded or unrelated obligation. Moving work to a future borrower is not itself a gas saving.</p>
+<h2 id="economic-minimums">Economic minimums</h2>
+<p>Minimum vault size, liquidation incentive, and bounty reserves must cover adverse gas conditions and actual collateral exit costs. Local currency depreciation can turn a once-economic vault into dust in dollar terms. Define who funds resolution and how native-unit minimums are updated without stranding existing users.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

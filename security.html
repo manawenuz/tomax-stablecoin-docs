@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>Security requirements and acceptance criteria · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="architecture.html">Architecture</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html" aria-current="page">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="security-requirements-and-acceptance-criteria">Security requirements and acceptance criteria</h1>
+<p>Security gates apply before capital or collateral limits increase. Production history of FiRM, Liquity, or f(x) does not establish the safety of a new FX oracle, V3 valuation, LP recovery path, or deferred settlement mechanism.</p>
+<h2 id="assets-and-adversaries">Assets and adversaries</h2>
+<p>Protect borrower collateral and surplus, stablecoin redeemability, LP positions and fees, backstop capital, report-signing keys, manager authority, and accurate debt accounting. Adversaries include flash-loan traders, MEV searchers, malicious borrowers, oracle-source manipulators, compromised publishers, unsafe collateral tokens, compromised managers, and insolvent offchain hedge venues.</p>
+<p>The threat model must include ordinary users racing for scarce quote assets during a legitimate devaluation. A system can fail economically without a smart-contract exploit.</p>
+<h2 id="required-invariants">Required invariants</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Property</th>
+<th>Evidence required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SEC01</td>
+<td>Minted principal reconciles with authorized debt and funded treasury issuance</td>
+<td>Stateful accounting invariants across mint, repay, interest, netting, and write-off</td>
+</tr>
+<tr>
+<td>SEC02</td>
+<td>A collateral claim can be recovered or assigned at most once</td>
+<td>Adversarial custody, wrapper, manager, and liquidation tests</td>
+</tr>
+<tr>
+<td>SEC03</td>
+<td>Own tokens cancel debt only when actually controlled and burned</td>
+<td>Conservation properties and atomic rollback tests</td>
+</tr>
+<tr>
+<td>SEC04</td>
+<td>Unfunded queued debt remains a liability</td>
+<td>Mark-to-market and loss-waterfall scenario tests</td>
+</tr>
+<tr>
+<td>SEC05</td>
+<td>Spot AMM manipulation cannot inflate usable collateral value</td>
+<td>Flash-loan and sandwich fork tests for every adapter</td>
+</tr>
+<tr>
+<td>SEC06</td>
+<td>Stale or replayed reports cannot authorize value extraction</td>
+<td>Timestamp, sequence, chain, market, signature, and skew tests</td>
+</tr>
+<tr>
+<td>SEC07</td>
+<td>Callback or token reentrancy cannot corrupt vault health or custody</td>
+<td>AMM callback and hostile-token harnesses</td>
+</tr>
+<tr>
+<td>SEC08</td>
+<td>Risk-reducing actions remain executable during ordinary outages</td>
+<td>Pause, queue saturation, oracle outage, and sequencer tests</td>
+</tr>
+<tr>
+<td>SEC09</td>
+<td>New collateral or manager permissions cannot bypass review boundaries</td>
+<td>Role graph, timelock, upgrade, and arbitrary-call analysis</td>
+</tr>
+<tr>
+<td>SEC10</td>
+<td>Debt and fees have documented bounded rounding error</td>
+<td>Integer reference model, fuzzing, and long-horizon accrual tests</td>
+</tr>
+<tr>
+<td>SEC11</td>
+<td>Settlement has bounded work and funded execution</td>
+<td>Worst-case gas, dust, failed-token, and no-new-borrower tests</td>
+</tr>
+<tr>
+<td>SEC12</td>
+<td>A currency market cannot spend another market's backing without explicit approved risk sharing</td>
+<td>Cross-market accounting and fault-isolation tests</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="economic-attack-cases">Economic attack cases</h2>
+<p>Test borrowing against a manipulated LP composition, submitting the most advantageous still-valid FX report, moving a range around a pending borrow, using copied sources to reach quorum, inducing an apparent USDT premium, and exploiting native-unit conversion errors. Combine these actions with collateral withdrawal, redemption, interest adjustment, and queue settlement in the same transaction and across blocks.</p>
+<p>Stress truthful FX jumps, external quote depegs, ETH gaps, LP becoming entirely the issued token, correlated exits across currencies, keeper congestion, liquidation backstop withdrawals, and loss of an offchain hedge. Simulate full life cycles rather than entry alone.</p>
+<h2 id="valuation-and-custody">Valuation and custody</h2>
+<p>Define the conservative recoverable value for every position state, including out-of-range and partially settled positions. Haircut delayed and uncertain claims. Never use the self-issued token's manipulable pool spot as the sole reference for its own borrowing power. Onchain inventory observation alone does not prove that accepting a manipulated inventory is safe.</p>
+<p>Reserve held collateral for its owner until the specified liquidation transition. Control approvals and callback targets narrowly. Document manager, guardian, governance, signer, and hedge-operator powers separately, including revocation and key compromise procedures.</p>
+<h2 id="verification-stages">Verification stages</h2>
+<p>First validate economic rules with an independent integer model and adverse market paths. Then review and test each adapter, the core accounting, and complete user flows on forks of the proposed deployment chain. Require independent smart-contract review, independent economic/oracle review, remediation, regression verification, monitoring, and an incident drill before an uncapped launch.</p>
+<p>For a capped pilot, all critical and high findings must be resolved or the affected feature disabled. Publish the accepted threat model, dependency inventory, audits, deployed code references, admin powers, and risk parameters. A multi-signature wallet or an emergency pause alone is not a substitute for these gates.</p>
+<h2 id="documentation-and-model-limitations">Documentation and model limitations</h2>
+<p>The supplied Python checks cover research-model conservation, range exhaustion, scaling, a failing debt mixture, and step convergence. They do not certify contracts, oracle accuracy, market demand, ETH liquidation safety, or any production deployment.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

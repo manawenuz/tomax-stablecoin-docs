@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>Interest mechanism alternatives · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="architecture.html">Architecture</a><a href="interest.html" aria-current="page">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="interest-mechanism-alternatives">Interest mechanism alternatives</h1>
+<p>Interest choice does not replace collateral valuation, a peg redemption mechanism, or funded liquidation capacity. Compare the three protocol families against the same LP and ETH collateral requirements before selecting one.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Alternative</th>
+<th>Mechanism</th>
+<th>Fit and additional work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Liquity V2 style</td>
+<td>Borrowers choose rates; lower-rate debt is redeemed first</td>
+<td>Direct market pressure on rates and explicit redemption rights; LP recovery and range management need new design</td>
+</tr>
+<tr>
+<td>FiRM style</td>
+<td>Borrowers acquire credits consumed with debt and time</td>
+<td>Closest LP-collateral precedent; adds credit-market liquidity and requires independent peg and redemption policy</td>
+</tr>
+<tr>
+<td>f(x) style</td>
+<td>Senior currency claims and junior residual-risk shares</td>
+<td>Moves risk to junior investors; changes the product from individual vault lending to tranche issuance</td>
+</tr>
+</tbody>
+</table></div>
+<p>Liquity's redemption rules, FiRM's borrowing rights, and the original f(x) senior/junior split are described in their primary documentation. Original fETH retained low ETH beta and was not a hard fiat peg. <a href="sources.html">Sources</a>.</p>
+<h2 id="borrower-selected-rates">Borrower selected rates</h2>
+<p>Borrowers trade lower cost against redemption probability. To preserve the mechanism, redemptions must remain executable and economically funded. Social requests to redeem can supplement keepers; they cannot substitute for a specified permissionless redemption path. LP management must not allow borrowers to evade redemption by manipulating inventory or moving claims.</p>
+<h2 id="currency-specific-borrowing-rights">Currency specific borrowing rights</h2>
+<p>A candidate design has one borrowing-right token for each currency. One credit covers one native currency unit of debt for one year. Its price in that native currency determines the quoted prepaid cost. The credit may be distributed by auctions and allocated to LP incentives within an explicit budget.</p>
+<p>A shared credit is possible if consumption is normalized to a common value. It then needs fresh FX conversion or currency-specific consumption coefficients and links borrowing conditions across the markets. A single shared governance token does not require a single shared borrowing-right token.</p>
+<p>Reducing issuance affects future purchases; borrowers with prepaid rights retain their contractual coverage. It is not an immediate peg repair. Credit emissions are not external collateral and do not increase liquidation funding. Compare gross-debt credit consumption with residual-debt consumption: in an LP-backed position they can produce very different effective borrowing costs. Any change from FiRM's gross-debt accounting requires independent economic and security review.</p>
+<h2 id="local-currency-economics">Local currency economics</h2>
+<p>Fixed nominal rates remain possible in high-inflation currencies; long-term pricing becomes risky. If S is native currency per dollar, S rises by e over a period, and native debt grows by r, the dollar debt-growth factor is (1+r)/(1+e). This exposes borrowers and holders differently. CPI inflation, accessible FX depreciation, and protocol borrowing cost are distinct inputs.</p>
+<p>Do not promise dollar-equivalent yields based on local nominal interest. LP rewards must be budgeted from collected interest or explicitly limited credit issuance, with revenue shared between liquidity and the liquidation backstop according to funded needs.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

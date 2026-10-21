@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>Proposed system architecture · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="architecture.html" aria-current="page">Architecture</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="proposed-system-architecture">Proposed system architecture</h1>
+<p>Each currency needs a distinct debt ledger, FX benchmark, issuance policy, liquidity pool, and risk budget. Reuse reviewed modules across currencies while keeping liabilities and backstop accounting explicit. Shared code does not require shared losses.</p>
+<h2 id="modules">Modules</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Responsibility</th>
+<th>Required boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Currency market</td>
+<td>Mint, burn, accrue interest, track debt</td>
+<td>No mint without authorized debt or fully funded treasury issuance</td>
+</tr>
+<tr>
+<td>Vault engine</td>
+<td>Hold collateral claims and enforce health</td>
+<td>One recoverable claim per vault; no double counting</td>
+</tr>
+<tr>
+<td>Collateral registry</td>
+<td>Configure reviewed assets and adapters</td>
+<td>Timelocked activation; immediate restriction of new exposure</td>
+</tr>
+<tr>
+<td>LP adapter</td>
+<td>Value and recover managed positions</td>
+<td>External prices, actual inventory, allowed ranges, recoverable fees</td>
+</tr>
+<tr>
+<td>FX oracle verifier</td>
+<td>Verify reports and freshness</td>
+<td>Bound reports to chain, market, source time, and sequence</td>
+</tr>
+<tr>
+<td>Interest engine</td>
+<td>Borrower-set rates or borrowing rights</td>
+<td>Specified accrual, rounding, payment, and bad-debt behavior</td>
+</tr>
+<tr>
+<td>Redemption engine</td>
+<td>Exchange tokens for collateral under explicit rules</td>
+<td>Oracle-valid pricing, fees, solvency limits, and no double redemption</td>
+</tr>
+<tr>
+<td>Liquidation backstop</td>
+<td>Burn funded debt and own collateral</td>
+<td>Funded capacity separate from notional hedge exposure</td>
+</tr>
+<tr>
+<td>LP manager</td>
+<td>Reposition authorized collateral positions</td>
+<td>Restricted targets, bounded execution, custody continuity</td>
+</tr>
+<tr>
+<td>Keeper interface</td>
+<td>Submit reports and execute bounded work</td>
+<td>Permissionless validated actions and funded compensation</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="loan-entry">Loan entry</h2>
+<p>An LP borrower submits an authenticated FX report, buys the required stable leg, adds an eligible LP position, and locks its claim in one atomic flow. The debt engine checks conservatively valued collateral after all material state changes and mints at the chosen utilization of the permitted limit. The illustrative actual LTV is 0.95 * 0.92 = 0.874. The remaining 12.6% is collateral equity; it is not a fee or a withheld token allocation.</p>
+<p>An ETH borrower deposits ETH and passes that branch's collateral and debt ceilings. ETH proceeds do not create the LP purchase offset. The target 10% share must be implemented as exposure headroom and an absolute cap, not a promise that future LP borrowing will restore the ratio.</p>
+<h2 id="net-liability-accounting">Net liability accounting</h2>
+<p>When a vault's LP holds S units of its own debt token and Q units of external collateral, recovery can burn S against the vault debt D. Residual debt is D-S, subject to the actual assets recovered and any execution costs. For an 80/20 LP snapshot and debt 87.4, residual debt is 7.4 against 20 of external assets.</p>
+<p>The position's inventory changes with every swap. Maintain current, conservative recoverable quantities; do not persist an 80/20 ratio. Other currencies' tokens are not interchangeable with the vault's debt for cancellation. Vault-level netting and system-wide reserves must reconcile without subtracting the same token balance twice.</p>
+<h2 id="manageable-lp-positions">Manageable LP positions</h2>
+<p>The initial research model uses one common narrow range. A deployable adapter must specify permitted AMMs, pool factories, token pairs, fee tiers, tick bounds, ownership, fee collection, manager permissions, and position identification. A V3 NFT is not a fungible LP token; custody and valuation must handle each accepted position or reviewed wrapper.</p>
+<p>Only the collateral manager can move locked positions. Repositioning must retain assets in approved custody, respect execution bounds, and recheck health. A manager cannot borrow, transfer borrower equity, approve arbitrary targets, or change the collateral's token pair.</p>
+<h2 id="redemptions-and-exits">Redemptions and exits</h2>
+<p>A redemption design must identify which vault or reserve supplies collateral, which debt is burned, how LP positions are recovered, how fees are allocated, and what happens when an external asset cannot immediately settle. Providing redemptions against LP collateral is a distinct implementation task; Liquity's existing collateral recovery cannot simply be assumed to work for V3 positions.</p>
+<p>LP withdrawal and vault closure are first-class flows. Debt repayment must release only the entitled collateral; shared positions cannot be redeemed twice. Model exits while the pool is one-sided and while the oracle or quote asset is unavailable.</p>
+<h2 id="extending-the-system">Extending the system</h2>
+<p>Add a collateral type through a new reviewed adapter and parameter set, rather than arbitrary execution hooks in the core vault. The <a href="collateral.html">onboarding process</a> requires independent pricing, liquidity and redemption analysis, adversarial valuation tests, and a capped pilot. Reusing the oracle-report format or vault ledger across markets is preferred where it reduces attack surface.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>
