@@ -13,7 +13,8 @@
     "fee_inclusive_bid": 0.9675930733310008,
     "marginal_fee": 0.0024813677,
     "lp_borrowers_net_quote_cash": 4592.142503997564,
-    "eth_collateral_value_at_67pct_ltv": 1886.8685413453816,
+    "eth_opening_ltv": 0.75,
+    "eth_collateral_value_at_opening_ltv": 1685.6025636018742,
     "steps_per_seed": 1000,
     "fee_inclusive_boundary": false
   },
@@ -31,7 +32,8 @@
     "fee_inclusive_bid": 0.970000000000001,
     "marginal_fee": 0.0024794484,
     "lp_borrowers_net_quote_cash": 4155.686861529258,
-    "eth_collateral_value_at_67pct_ltv": 1709.0820245698947,
+    "eth_opening_ltv": 0.75,
+    "eth_collateral_value_at_opening_ltv": 1526.779941949106,
     "steps_per_seed": 1000,
     "fee_inclusive_boundary": true
   },
@@ -50,7 +52,8 @@
       "fee_inclusive_bid": 0.9675930733310869,
       "marginal_fee": 0.0024813677,
       "lp_borrowers_net_quote_cash": 4598.483719719794,
-      "eth_collateral_value_at_67pct_ltv": 1887.964848672221,
+      "eth_opening_ltv": 0.75,
+      "eth_collateral_value_at_opening_ltv": 1686.5819314805176,
       "steps_per_seed": 20,
       "fee_inclusive_boundary": false
     },
@@ -68,7 +71,8 @@
       "fee_inclusive_bid": 0.967593073331005,
       "marginal_fee": 0.0024813677,
       "lp_borrowers_net_quote_cash": 4593.357527797398,
-      "eth_collateral_value_at_67pct_ltv": 1887.0782874886004,
+      "eth_opening_ltv": 0.75,
+      "eth_collateral_value_at_opening_ltv": 1685.78993682315,
       "steps_per_seed": 100,
       "fee_inclusive_boundary": false
     },
@@ -86,7 +90,8 @@
       "fee_inclusive_bid": 0.9675930733310034,
       "marginal_fee": 0.0024813677,
       "lp_borrowers_net_quote_cash": 4592.347315307735,
-      "eth_collateral_value_at_67pct_ltv": 1886.9038823780036,
+      "eth_opening_ltv": 0.75,
+      "eth_collateral_value_at_opening_ltv": 1685.63413492435,
       "steps_per_seed": 400,
       "fee_inclusive_boundary": false
     }
@@ -106,7 +111,8 @@
       "fee_inclusive_bid": 0.967593073331005,
       "marginal_fee": 0.0024813677,
       "lp_borrowers_net_quote_cash": 4593.357527797398,
-      "eth_collateral_value_at_67pct_ltv": 1887.0782874886004,
+      "eth_opening_ltv": 0.75,
+      "eth_collateral_value_at_opening_ltv": 1685.78993682315,
       "steps_per_seed": 100,
       "fee_inclusive_boundary": false
     },
@@ -124,7 +130,8 @@
       "fee_inclusive_bid": 0.967593073331005,
       "marginal_fee": 0.0024813677,
       "lp_borrowers_net_quote_cash": 9186.715055594796,
-      "eth_collateral_value_at_67pct_ltv": 3774.1565749772008,
+      "eth_opening_ltv": 0.75,
+      "eth_collateral_value_at_opening_ltv": 3371.5798736463,
       "steps_per_seed": 100,
       "fee_inclusive_boundary": false
     },
@@ -142,7 +149,8 @@
       "fee_inclusive_bid": 0.9675930733310051,
       "marginal_fee": 0.0024813677,
       "lp_borrowers_net_quote_cash": 13780.072583391806,
-      "eth_collateral_value_at_67pct_ltv": 5661.234862465801,
+      "eth_opening_ltv": 0.75,
+      "eth_collateral_value_at_opening_ltv": 5057.3698104694495,
       "steps_per_seed": 100,
       "fee_inclusive_boundary": false
     },
@@ -160,7 +168,8 @@
       "fee_inclusive_bid": 0.967593073331005,
       "marginal_fee": 0.0024813677,
       "lp_borrowers_net_quote_cash": 18373.43011118959,
-      "eth_collateral_value_at_67pct_ltv": 7548.3131499544015,
+      "eth_opening_ltv": 0.75,
+      "eth_collateral_value_at_opening_ltv": 6743.1597472926,
       "steps_per_seed": 100,
       "fee_inclusive_boundary": false
     },
@@ -178,7 +187,8 @@
       "fee_inclusive_bid": 0.9675930733310043,
       "marginal_fee": 0.0024813677,
       "lp_borrowers_net_quote_cash": 22966.787638985938,
-      "eth_collateral_value_at_67pct_ltv": 9435.391437443002,
+      "eth_opening_ltv": 0.75,
+      "eth_collateral_value_at_opening_ltv": 8428.949684115749,
       "steps_per_seed": 100,
       "fee_inclusive_boundary": false
     }

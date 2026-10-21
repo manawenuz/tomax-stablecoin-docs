@@ -10,7 +10,7 @@
 <p>This RFP requests research and specification proposals first. Production deployment requires a separately approved implementation, independent review, remediation, and operating plan. No implementation or audit engagement is commissioned by publication of this RFP.</p>
 <h2 id="required-baseline">Required baseline</h2>
 <ul>
-<li>Model 96% of additional debt backed by LP and 4% by ETH, with 87.4% actual LP LTV.</li>
+<li>Model 96% of additional debt backed by LP and 4% by ETH, with 87.4% LP origination LTV and user-selected 75% opening ETH LTV; retain 60%/67% ETH sensitivities. Specify liquidation thresholds separately.</li>
 <li>Replicate both AMM cases separately: V3 starts with $10k–$50k quote-only LP value at the upper boundary; FXSwap starts at price 1 with external quote seed plus an equal-value self-issued token leg. Record the latter as bootstrap issuance and a treasury liability. Show the alternate interpretation where $10k–$50k means total two-sided LP value.</li>
 <li>For FXSwap, report both fee-exclusive marginal price and executable bid within 3% of parity, realistic-size exit depth, and internal price-scale drift. It has no hard 0.97–1.00 range.</li>
 <li>Treat LP borrowing as buy, deposit, lock, mint, and sell, using actual AMM price impact and post-purchase inventory.</li>
