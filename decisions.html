@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
 <title>Decisions and open questions · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
-<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="architecture.html">Architecture</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html" aria-current="page">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="decisions-and-open-questions">Decisions and open questions</h1>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html" aria-current="page">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="decisions-and-open-questions">Decisions and open questions</h1>
 <h2 id="accepted-research-assumptions">Accepted research assumptions</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -43,8 +43,16 @@
 <td>$10k to $50k total LP value per currency</td>
 </tr>
 <tr>
-<td>Initial range</td>
-<td>1.5% below to 1.5% above the external peg</td>
+<td>Target trading range</td>
+<td>0.97 to 1.00 of external currency parity</td>
+</tr>
+<tr>
+<td>Starting price</td>
+<td>1.00, with quote-only seed LP</td>
+</tr>
+<tr>
+<td>Above parity</td>
+<td>Separate collateral-backed debt expansion mechanism to be specified</td>
 </tr>
 <tr>
 <td>Oracle submission</td>
@@ -61,6 +69,7 @@
 </tbody>
 </table></div>
 <p>The 12.6% difference between LP collateral and actual debt is equity. No 8% fee or withheld debt-token distribution is assumed.</p>
+<p>The initial 0.985 to 1.015 range and midpoint-start interpretation were superseded by the explicit 0.97 to 1.00 range starting at 1.00. Published results and downloads use the corrected configuration. The supplied FiRM benchmark uses 96% LP debt share as a comparator; the base case remains 90%.</p>
 <h2 id="proposed-requirements">Proposed requirements</h2>
 <p>Use independently verified source observations, recoverable LP inventory, atomic own-token netting, separate market budgets, capped ETH issuance, funded settlement, bounded queues, and permissions that can restrict exposure without seizing unrelated collateral. Treat an offchain hedge as optional management of funded inventory.</p>
 <h2 id="choices-before-implementation">Choices before implementation</h2>

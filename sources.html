@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
 <title>Primary sources · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
-<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="architecture.html">Architecture</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html" aria-current="page">Sources</a></nav><main id="content"><article><h1 id="primary-sources">Primary sources</h1>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html" aria-current="page">Sources</a></nav><main id="content"><article><h1 id="primary-sources">Primary sources</h1>
 <p>These references support the protocol precedents and infrastructure behavior discussed in the research. The simulation's assumptions and proposed Tomax requirements are separate design work. Reference review date: 21 October 2026.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -23,8 +23,16 @@
 <td>Range-dependent active liquidity and one-sided inventory</td>
 </tr>
 <tr>
+<td><a href="https://raw.githubusercontent.com/Uniswap/v3-periphery/main/contracts/interfaces/INonfungiblePositionManager.sol">Uniswap V3 position manager interface</a></td>
+<td>Position tick bounds, minting, removal and collection</td>
+</tr>
+<tr>
 <td><a href="https://developers.uniswap.org/docs/get-started/concepts/hooks">Uniswap hooks</a></td>
 <td>V4 callbacks can customize pool operations</td>
+</tr>
+<tr>
+<td><a href="https://developers.uniswap.org/docs/protocols/v4/concepts/hooks">Uniswap V4 hooks</a></td>
+<td>Hooks run within onchain transactions and liquidity operations</td>
 </tr>
 <tr>
 <td><a href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dbr">FiRM borrowing rights</a></td>
@@ -33,6 +41,10 @@
 <tr>
 <td><a href="https://www.inverse.finance/governance/proposals/mills/320">FiRM LP collateral proposal</a></td>
 <td>An LP containing DOLA and an external asset accepted as collateral</td>
+</tr>
+<tr>
+<td><a href="assets/firm-market-snapshot.png">Owner supplied FiRM screenshot</a></td>
+<td>Rounded market rows used in the benchmark; aggregate allocation and composition remain assumptions</td>
 </tr>
 <tr>
 <td><a href="https://docs.liquity.org/v2-faq/redemptions-and-delegation">Liquity redemptions</a></td>

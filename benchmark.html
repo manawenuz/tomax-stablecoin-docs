@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>FiRM market making benchmark · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="benchmark.html" aria-current="page">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="firm-market-making-benchmark">FiRM market making benchmark</h1>
+<p>FiRM is a relevant production comparator for borrowing against LP collateral containing its own issued asset. The project owner supplied a market-dashboard screenshot and an aggregate estimate on 21 October 2026. This benchmark preserves that calculation and distinguishes displayed figures from assumed portfolio composition. It is not an independently reconstructed onchain reserve audit.</p>
+<h2 id="owner-supplied-aggregate-calculation">Owner supplied aggregate calculation</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Input</th>
+<th style="text-align: right;">Value</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Borrowing in market-making markets</td>
+<td style="text-align: right;">$68.57m</td>
+<td>Reported as 96% of total debt</td>
+</tr>
+<tr>
+<td>Aggregate TVL</td>
+<td style="text-align: right;">$89.65m</td>
+<td>Owner supplied total collateral TVL</td>
+</tr>
+<tr>
+<td>Share assigned to LP collateral</td>
+<td style="text-align: right;">96%</td>
+<td>Proxy using the reported debt share; not a measured TVL share</td>
+</tr>
+<tr>
+<td>DOLA composition of LP collateral</td>
+<td style="text-align: right;">75%</td>
+<td>Assumed value-weighted recoverable DOLA-equivalent share</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code class="language-text">Estimated LP collateral = $89.65m * 96% = $86.064m
+Estimated locked DOLA = $86.064m * 75% = $64.548m
+Residual debt = $68.57m - $64.548m = $4.022m
+Gross LP debt / estimated residual debt = 17.0487 times
+</code></pre>
+<p>The $4.022m is estimated debt remaining after netting recoverable own-token collateral. It is not a measurement of initial treasury capital, external quote reserves, or borrower equity. Under these same assumptions, the external LP component is $21.516m, collateral equity is $17.494m, and residual debt divided by external LP collateral is about 18.69%.</p>
+<p>A debt share does not establish an equal share of TVL. Using 96% to allocate TVL is explicit here so the result can be replicated or replaced when actual collateral-by-market totals and underlying pool balances are available. The 75% composition must include wrapper exchange rates, eligibility, custody, and recovery costs, not merely displayed token labels.</p>
+<h2 id="matched-rows-visible-in-the-screenshot">Matched rows visible in the screenshot</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>LP collateral market</th>
+<th style="text-align: right;">Displayed TVL</th>
+<th style="text-align: right;">Displayed DOLA borrowed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>reUSD-sDOLA</td>
+<td style="text-align: right;">$3.03m</td>
+<td style="text-align: right;">$2.49m</td>
+</tr>
+<tr>
+<td>yv-reUSD-sDOLA</td>
+<td style="text-align: right;">$3.33m</td>
+<td style="text-align: right;">$2.49m</td>
+</tr>
+<tr>
+<td>sUSDe-DOLA</td>
+<td style="text-align: right;">$47.35m</td>
+<td style="text-align: right;">$41.94m</td>
+</tr>
+<tr>
+<td>yv-sUSDS-DOLA</td>
+<td style="text-align: right;">$1.02m</td>
+<td style="text-align: right;">$0.88044m</td>
+</tr>
+<tr>
+<td>sUSDS-DOLA</td>
+<td style="text-align: right;">$5.57m</td>
+<td style="text-align: right;">$4.91m</td>
+</tr>
+<tr>
+<td>yv-sUSDe-DOLA</td>
+<td style="text-align: right;">$12.91m</td>
+<td style="text-align: right;">$11.32m</td>
+</tr>
+<tr>
+<td>scrvUSD-sDOLA</td>
+<td style="text-align: right;">$5.43m</td>
+<td style="text-align: right;">$4.54m</td>
+</tr>
+<tr>
+<td><strong>Visible LP total</strong></td>
+<td style="text-align: right;"><strong>$78.64m</strong></td>
+<td style="text-align: right;"><strong>$68.57044m</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>The displayed LP rows support approximately $68.57m of LP-backed borrowing and an aggregate displayed debt-to-TVL ratio of <strong>87.20%</strong>, close to the Tomax research assumption of 87.4% actual LP LTV. TVL and market values are rounded dashboard values and may not equal the protocol's conservative borrowing-power valuation.</p>
+<p>As a separate matched-row sensitivity, applying the same assumed 75% DOLA composition to the visible $78.64m LP TVL gives $58.98m own-token collateral, $19.66m external collateral, and $9.59044m residual debt. This is a different estimate because it uses the visible LP rows rather than allocating total TVL by debt share. Neither estimate directly measures the physical underlying assets.</p>
+<h2 id="relevance-to-tomax">Relevance to Tomax</h2>
+<p>The comparator supports evaluating own-token LP collateral and debt netting as practical mechanisms. It also motivates a separate 96% LP-debt-share sensitivity alongside the accepted 90% base case. It does not establish a 17-times debt-to-seed multiplier: the denominator in the owner's calculation is residual debt, while the simulation's denominator is initial liquidity.</p>
+<p>FiRM's dollar-denominated LPs, external quote assets, AMM designs, user demand, accrued yield, and valuation rules differ from local-currency assets requiring moving FX ranges. Compare gross debt, recoverable own tokens, external collateral, net debt, backstop commitments, and executable exit depth on consistent dates and units.</p>
+<p>The screenshot's DOLA liquidity column is not used as external quote reserves or guaranteed AMM sell capacity. Its yield and leverage advertisements are not Tomax return assumptions. The reported 96% debt concentration needs an all-market debt denominator from the same observation time; that denominator is not visible in the supplied crop.</p>
+<p><img alt="Owner supplied FiRM market dashboard snapshot" src="assets/firm-market-snapshot.png"></p>
+<p>Primary context: <a href="https://firm.inverse.finance/markets">FiRM markets</a>, <a href="https://www.inverse.finance/firm/positions">FiRM positions</a>, and the <a href="https://www.inverse.finance/transparency/dola">DOLA transparency dashboard</a>. These live pages may change and do not independently establish the supplied aggregate inputs.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

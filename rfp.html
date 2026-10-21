@@ -4,15 +4,17 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
 <title>Request for proposals · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
-<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="architecture.html">Architecture</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html" aria-current="page">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="request-for-proposals">Request for proposals</h1>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html" aria-current="page">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="request-for-proposals">Request for proposals</h1>
 <h2 id="project-and-objective">Project and objective</h2>
 <p>Design and validate collateral-backed IRR, TRY, and ARS tracking tokens with $10k to $50k seed LP value per currency. Most loans should require locked LP collateral containing the issued token and an external asset. A smaller reviewed branch may accept liquid volatile collateral such as ETH. Security, recoverability, and realistic gas costs are acceptance requirements.</p>
 <p>This RFP requests research and specification proposals first. Production deployment requires a separately approved implementation, independent review, remediation, and operating plan. No implementation or audit engagement is commissioned by publication of this RFP.</p>
 <h2 id="required-baseline">Required baseline</h2>
 <ul>
 <li>Model 90% of additional debt backed by LP and 10% by ETH, with 87.4% actual LP LTV.</li>
-<li>Start with $10k, $20k, and $50k total seed LP value per currency and a 1.5% price band.</li>
+<li>Start with $10k, $20k, and $50k total seed LP value per currency, a 0.97 to 1.00 target trading range, and initial price 1.00 with quote-only seed liquidity.</li>
 <li>Treat LP borrowing as buy, deposit, lock, mint, and sell, using actual AMM price impact and post-purchase inventory.</li>
+<li>Permit quote-only LP entry at the starting upper boundary. Specify collateral-backed expansion above parity separately.</li>
+<li>Compare the base case with the supplied FiRM LP-collateral benchmark using consistent gross debt, own-token collateral, external assets, and residual-debt denominators.</li>
 <li>Separate seed liabilities, borrower collateral, external reserves, and liquidation backstop funding.</li>
 <li>Support user-funded submission of authenticated FX reports with independent freshness and source checks.</li>
 <li>Permit reviewed collateral adapters without giving core vaults arbitrary execution powers.</li>
@@ -58,6 +60,11 @@
 <td>F Gas study</td>
 <td>Chain-specific benchmark plan and measured prototype transactions</td>
 <td>Complete costs and bounded failure paths for operations in the gas requirements</td>
+</tr>
+<tr>
+<td>F2 Market making</td>
+<td>Offchain policy, onchain manager, keeper execution and optional V4 hooks</td>
+<td>Bounded rebalances, atomic custody, valid FX, slippage, and post-action health checks</td>
 </tr>
 <tr>
 <td>G Security plan</td>
