@@ -1,0 +1,26 @@
+{
+  "config": {
+    "raw_a": 600000,
+    "reserve_multiple": 0.1,
+    "initial_debt_multiple": 0.5,
+    "origination_band": 0.03,
+    "keeper": {}
+  },
+  "training_score": [
+    0,
+    0.0,
+    0,
+    0.1,
+    0.014971,
+    -366.00331729626487
+  ],
+  "selection_order": [
+    "sampled postkeeper breaches",
+    "bad debt",
+    "pending queue",
+    "extra reserve capital",
+    "worst postkeeper error",
+    "protocol equity"
+  ],
+  "holdout_used_for_selection": false
+}

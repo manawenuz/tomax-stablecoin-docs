@@ -1,0 +1,82 @@
+{
+  "as_of_utc": "2026-10-21T16:36:13Z",
+  "status": "running",
+  "mock_only": true,
+  "actual_orders_or_chain_writes": 0,
+  "started_utc": "2026-10-21T16:25:56Z",
+  "ends_utc": "2026-11-04T16:25:56Z",
+  "decisions": 1,
+  "scheduled_cadence_seconds": 900,
+  "scheduler": "Codex local thread heartbeat; host/app availability required",
+  "automation_id": "tomax-14-day-paper-experiment",
+  "policy_config_sha256": "84a4e6d591354922b4de51177b7eabb59b88076ccb040e6c2c55e324be62cecb",
+  "funding": {
+    "external_pool_seed": 10000,
+    "additional_protocol_reserve": 1000.0,
+    "bootstrap_token_liability": 10000,
+    "initial_additional_debt": 5000.0
+  },
+  "raw_a": 600000,
+  "origination_band": 0.03,
+  "last_decision_utc": "2026-10-21T16:25:56Z",
+  "last_check_reason": "current_observation_decision",
+  "current_feed_ages_seconds": {
+    "ETH_USDT": 617,
+    "IRR_USDT": 673
+  },
+  "sources": {
+    "ETH_USDT": {
+      "source": "Binance",
+      "value": 2508.18,
+      "observed_utc": "2026-10-21T16:25:56Z"
+    },
+    "IRR_USDT": {
+      "source": "Wallex",
+      "value": 2655000.0,
+      "observed_utc": "2026-10-21T16:25:00Z"
+    }
+  },
+  "post_keeper_error": 0.002621421675857105,
+  "max_sampled_pre_keeper_error": 0.0,
+  "max_sampled_post_keeper_error": 0.002621421675857105,
+  "sampled_post_keeper_breaches": 0,
+  "protocol_equity": 11019.67264278357,
+  "protocol_equity_change": 19.672642783569245,
+  "debt": 5000.0,
+  "bad_debt": 0.0,
+  "pending": 0,
+  "assumed_gas_eth": 0.0009,
+  "actors": {
+    "eth": {
+      "marked_equity": 14998.37935688729,
+      "holding_benchmark": 15000.0,
+      "pnl_vs_holding": -1.6206431127102405
+    },
+    "farmer": {
+      "marked_equity": 10200.0,
+      "holding_benchmark": 10200.0,
+      "pnl_vs_holding": 0.0
+    },
+    "holder": {
+      "marked_equity": 5102.819563012328,
+      "holding_benchmark": 5100.0,
+      "pnl_vs_holding": 2.819563012328217
+    },
+    "lp": {
+      "marked_equity": 30180.835632390626,
+      "holding_benchmark": 30200.0,
+      "pnl_vs_holding": -19.164367609373585
+    },
+    "searcher": {
+      "marked_equity": 20296.03544292619,
+      "holding_benchmark": 20300.0,
+      "pnl_vs_holding": -3.9645570738102833
+    }
+  },
+  "limitations": [
+    "Only actual retrieved observations trigger decisions; no catch-up live fills",
+    "Historical response success is not continuous3% or optimal-adversary proof",
+    "Lending/oracle/ETH venue remain mocks; live pool uses validated float port",
+    "This is an as-of export, not a continuously refreshed public dashboard"
+  ]
+}
