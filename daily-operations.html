@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>Daily ETH operating budget · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html" aria-current="page">Daily ETH budget</a><a href="zarban.html">Zarban scenario</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="daily-eth-operating-budget">Daily ETH operating budget</h1>
+<p>At <strong>5 gwei effective gas price and an assumed 600,000 gas per range reset</strong>, the historical 2% anchor policy costs approximately <strong>0.001676 ETH per day on average across all three currencies</strong>. Its observed busiest day costs 0.012 ETH. These are range-management fees under stated assumptions, not a measured all-in cost of a deployed protocol.</p>
+<h2 id="gas-assumptions-and-who-pays">Gas assumptions and who pays</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th style="text-align: right;">Assumed gas</th>
+<th>Budget treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fixed work for one currency reset, including report verification</td>
+<td style="text-align: right;">150,000</td>
+<td>Treasury/keeper</td>
+</tr>
+<tr>
+<td>Remove, collect, convert inventory and reinstall each managed position</td>
+<td style="text-align: right;">450,000 per position</td>
+<td>Treasury/keeper; gas only, no trading losses</td>
+</tr>
+<tr>
+<td>Standalone authenticated report</td>
+<td style="text-align: right;">100,000</td>
+<td>Action sponsor; do not count twice inside a reset</td>
+</tr>
+<tr>
+<td>Funded collateral/debt settlement</td>
+<td style="text-align: right;">250,000</td>
+<td>Protocol/backstop sensitivity; adapter-specific</td>
+</tr>
+<tr>
+<td>User loan action including its ordinary report handling</td>
+<td style="text-align: right;">400,000</td>
+<td>User pays by default</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>None of these gas units is measured.</strong> No production contracts have been built. They are replaceable planning inputs; actual approvals, signature quorum, swaps, bridge proofs, calldata and adapter calls can materially change them. The <a href="gas.html">gas RFP</a> requires implementation and chain-specific measurements. Ethereum fees depend on gas used and the effective price, including priority fees; a transaction's gas limit or maximum fee is not its final cost. <a href="https://ethereum.org/developers/docs/gas/">Ethereum gas documentation</a>.</p>
+<p>For <code>n</code> pooled positions per currency:</p>
+<pre><code class="language-text">gas per reset = 150,000 + 450,000 * n
+ETH/day = resets/day * gas per reset * effective_gwei * 1e-9
+</code></pre>
+<p>One shared managed position gives 600,000 gas per reset. Ten separately managed positions give 4,650,000 gas, or <strong>7.75 times</strong> the reset fee. A pooled vault can account for many borrowers without moving an NFT for each borrower, subject to secure share accounting and withdrawal rules. An unbounded loop over borrower positions is unacceptable.</p>
+<h2 id="all-three-currency-range-management">All-three-currency range management</h2>
+<p>These tables use the <a href="fx-volatility.html">179-day hourly-close backtest</a>, one pooled position per currency and no mandatory daily heartbeat. Counts reflect actual aggregate dates. They exclude extra reactions to intrahour spikes and data outages.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">Effective gas price</th>
+<th style="text-align: right;">2% anchor: mean ETH/day</th>
+<th style="text-align: right;">Historical p95 day</th>
+<th style="text-align: right;">Historical peak day</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1 gwei</td>
+<td style="text-align: right;">0.000335</td>
+<td style="text-align: right;">0.001200</td>
+<td style="text-align: right;">0.002400</td>
+</tr>
+<tr>
+<td style="text-align: right;">5 gwei</td>
+<td style="text-align: right;">0.001676</td>
+<td style="text-align: right;">0.006000</td>
+<td style="text-align: right;">0.012000</td>
+</tr>
+<tr>
+<td style="text-align: right;">20 gwei</td>
+<td style="text-align: right;">0.006704</td>
+<td style="text-align: right;">0.024000</td>
+<td style="text-align: right;">0.048000</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Policy at 5 gwei</th>
+<th style="text-align: right;">Mean ETH/day</th>
+<th style="text-align: right;">Historical p95 day</th>
+<th style="text-align: right;">Historical peak day</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2% anchor</td>
+<td style="text-align: right;">0.001676</td>
+<td style="text-align: right;">0.006000</td>
+<td style="text-align: right;">0.012000</td>
+</tr>
+<tr>
+<td>5% anchor</td>
+<td style="text-align: right;">0.000469</td>
+<td style="text-align: right;">0.003000</td>
+<td style="text-align: right;">0.006000</td>
+</tr>
+<tr>
+<td>Entire band within 5%</td>
+<td style="text-align: right;">0.000620</td>
+<td style="text-align: right;">0.003000</td>
+<td style="text-align: right;">0.009000</td>
+</tr>
+</tbody>
+</table></div>
+<p>The 5% anchor row allows more than a 5% total-price deviation because the range already extends 3% below its anchor. The entire-band row is the closer sampled workload proxy for a 5% total-price objective. Neither guarantees continuous compliance.</p>
+<p>At 5 gwei, ten positions per currency increase the 2% anchor mean to <strong>0.012989 ETH/day</strong> and its historical peak to <strong>0.093 ETH/day</strong>. Seed size of $10k versus $50k does not itself multiply gas if the position count and transaction flow remain equal. Small markets therefore bear a larger fee burden relative to their capital.</p>
+<h2 id="reports-liquidations-and-traffic-sensitivities">Reports, liquidations and traffic sensitivities</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Additional workload at 5 gwei</th>
+<th style="text-align: right;">Additional ETH/day</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One standalone report daily for each of three currencies</td>
+<td style="text-align: right;">0.0015</td>
+</tr>
+<tr>
+<td>One funded settlement daily</td>
+<td style="text-align: right;">0.00125</td>
+</tr>
+<tr>
+<td>Ten funded settlements daily</td>
+<td style="text-align: right;">0.0125</td>
+</tr>
+<tr>
+<td>Ten protocol-sponsored user actions daily</td>
+<td style="text-align: right;">0.0200</td>
+</tr>
+<tr>
+<td>One hundred protocol-sponsored user actions daily</td>
+<td style="text-align: right;">0.2000</td>
+</tr>
+<tr>
+<td>Ten range resets daily, one position each</td>
+<td style="text-align: right;">0.0300</td>
+</tr>
+<tr>
+<td>Fifty range resets daily, one position each</td>
+<td style="text-align: right;">0.1500</td>
+</tr>
+</tbody>
+</table></div>
+<p>These are alternative/additive workload assumptions where operations are distinct, not observed traffic or forecasts. Batch reuse can reduce duplicated reports; failed calls and repeated attempts can increase costs. User-paid activity does not become treasury expense unless a paymaster or sponsorship rule makes it so. A pull-oracle design need not publish a transaction when no action requires it; frequent offchain monitoring still has infrastructure costs.</p>
+<p>For illustration, 30 days of the 2% policy's historical mean plus two historical peak days is <code>30 * 0.00167598 + 2 * 0.012</code>, approximately <strong>0.0743 ETH</strong>, at 5 gwei and one position per market. This is a simple range-fee reserve example, not a sufficient liquidation reserve or congestion guarantee. Add funded stress settlements and the explicit sponsorship policy; price the same workloads again at adverse gas levels.</p>
+<h2 id="current-fee-snapshot-and-its-limits">Current fee snapshot and its limits</h2>
+<p>An Ethereum mainnet <code>eth_feeHistory</code> response retrieved on 21 October 2026 at 11:31 UTC covered 1,024 blocks, numbers 26,239,667–26,240,690. Median base fee was 0.04454 gwei; the median of each block's base fee plus its gas-weighted 50th-percentile tip was 0.05929 gwei. These are a brief RPC sample, not a keeper inclusion quote or future fee forecast. A separate block-timestamp lookup was unavailable; the observation time is the retrieval time. The source response and calculation summary are retained in the private research repository. The 1/5/20-gwei tables deliberately remain scenarios rather than assuming this low fee period persists.</p>
+<h2 id="costs-outside-the-gas-balance">Costs outside the gas balance</h2>
+<p>Borrower ETH collateral, liquidation principal, exchange hedge margin, adverse selection, inventory conversion, slippage, bridge fees, L2 execution/data fees, data licenses, signing infrastructure, monitoring and security review are separate costs. Recording a pending liquidation does not eliminate these costs or the price exposure. Budget at least one permissionless funded path that works without new borrowers.</p>
+<p>The proposed <a href="zarban.html">Zarban savings-share scenario</a> could reduce same-currency FX-driven range motion, but adds source-market, wrapper, bridge, rate-delivery and exit requirements. Its bridge operations are not included in the direct-FX workload tables. Download <a href="downloads/gas_budget.json">gas assumptions and scenarios</a>.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

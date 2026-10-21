@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
 <title>Generated simulation results · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
-<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html" aria-current="page">Result tables</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="generated-simulation-results">Generated simulation results</h1>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html" aria-current="page">Result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Zarban scenario</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="generated-simulation-results">Generated simulation results</h1>
 <p>Deterministic output for additional debt. The seed LP starts entirely in external quote assets at price 1.00; any other initial token liabilities are outside this model. Dollar amounts for tokens use external parity. The zero-fee baseline uses $100 debt cohorts per $10,000 seed. These are modeled scenarios and conditional exit envelopes, not recommended issuance limits.</p>
 <h2 id="secondary-selling-envelopes">Secondary selling envelopes</h2>
 <p>Maximum additional debt when the pool must still absorb the stated fraction of that debt in a separate sale, after issuance and without further LP, borrowing, or redemptions. The target trading range is 0.97 to 1.00 and the starting price is 1.00. Each sale ends at the 0.97 lower boundary. Include any other initial liabilities, liquidation demands, and a margin before using such a rule in risk policy.</p>
@@ -14,30 +14,48 @@
 <th style="text-align: right;">Additional debt sold</th>
 <th style="text-align: right;">$10k seed</th>
 <th style="text-align: right;">$20k seed</th>
+<th style="text-align: right;">$30k seed</th>
+<th style="text-align: right;">$40k seed</th>
 <th style="text-align: right;">$50k seed</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: right;">5%</td>
-<td style="text-align: right;">$581,603</td>
-<td style="text-align: right;">$1,163,207</td>
-<td style="text-align: right;">$2,908,017</td>
+<td style="text-align: right;">No finite crossing*</td>
+<td style="text-align: right;">No finite crossing*</td>
+<td style="text-align: right;">No finite crossing*</td>
+<td style="text-align: right;">No finite crossing*</td>
+<td style="text-align: right;">No finite crossing*</td>
 </tr>
 <tr>
 <td style="text-align: right;">10%</td>
-<td style="text-align: right;">$156,596</td>
-<td style="text-align: right;">$313,191</td>
-<td style="text-align: right;">$782,978</td>
+<td style="text-align: right;">No finite crossing*</td>
+<td style="text-align: right;">No finite crossing*</td>
+<td style="text-align: right;">No finite crossing*</td>
+<td style="text-align: right;">No finite crossing*</td>
+<td style="text-align: right;">No finite crossing*</td>
 </tr>
 <tr>
 <td style="text-align: right;">20%</td>
-<td style="text-align: right;">$62,697</td>
-<td style="text-align: right;">$125,394</td>
-<td style="text-align: right;">$313,485</td>
+<td style="text-align: right;">$108,394</td>
+<td style="text-align: right;">$216,788</td>
+<td style="text-align: right;">$325,182</td>
+<td style="text-align: right;">$433,576</td>
+<td style="text-align: right;">$541,970</td>
+</tr>
+<tr>
+<td style="text-align: right;">30%</td>
+<td style="text-align: right;">$53,039</td>
+<td style="text-align: right;">$106,078</td>
+<td style="text-align: right;">$159,117</td>
+<td style="text-align: right;">$212,157</td>
+<td style="text-align: right;">$265,196</td>
 </tr>
 </tbody>
 </table></div>
+<p>*The 5% and 10% exit rules do not give a finite cap in the ideal growing-LP model: remaining sale capacity approaches 10.1300% of additional debt. This is not unlimited safe issuance. The model excludes independent exits before the test, LP withdrawals, FX changes, liquidation losses, and other liabilities. Production caps need those constraints.</p>
+<p>Baseline: 96% LP-backed debt, 4% ETH-backed debt, and 87.4% actual LP LTV.</p>
 <h2 id="base-path-with-10k-seed">Base path with 10k seed</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -59,52 +77,52 @@
 </tr>
 <tr>
 <td style="text-align: right;">$10,000</td>
-<td style="text-align: right;">1.4740%</td>
-<td style="text-align: right;">$10,355</td>
-<td style="text-align: right;">$10,592</td>
-<td style="text-align: right;">105.92%</td>
+<td style="text-align: right;">1.4263%</td>
+<td style="text-align: right;">$11,039</td>
+<td style="text-align: right;">$11,289</td>
+<td style="text-align: right;">112.89%</td>
 </tr>
 <tr>
 <td style="text-align: right;">$50,000</td>
-<td style="text-align: right;">2.4263%</td>
-<td style="text-align: right;">$11,768</td>
-<td style="text-align: right;">$12,097</td>
-<td style="text-align: right;">24.19%</td>
+<td style="text-align: right;">2.2992%</td>
+<td style="text-align: right;">$15,178</td>
+<td style="text-align: right;">$15,592</td>
+<td style="text-align: right;">31.18%</td>
 </tr>
 <tr>
 <td style="text-align: right;">$100,000</td>
-<td style="text-align: right;">2.6434%</td>
-<td style="text-align: right;">$13,412</td>
-<td style="text-align: right;">$13,802</td>
-<td style="text-align: right;">13.80%</td>
+<td style="text-align: right;">2.4930%</td>
+<td style="text-align: right;">$20,238</td>
+<td style="text-align: right;">$20,810</td>
+<td style="text-align: right;">20.81%</td>
 </tr>
 <tr>
 <td style="text-align: right;">$250,000</td>
-<td style="text-align: right;">2.7960%</td>
-<td style="text-align: right;">$18,117</td>
-<td style="text-align: right;">$18,658</td>
-<td style="text-align: right;">7.46%</td>
+<td style="text-align: right;">2.6278%</td>
+<td style="text-align: right;">$35,212</td>
+<td style="text-align: right;">$36,231</td>
+<td style="text-align: right;">14.49%</td>
 </tr>
 <tr>
 <td style="text-align: right;">$500,000</td>
-<td style="text-align: right;">2.8521%</td>
-<td style="text-align: right;">$25,755</td>
-<td style="text-align: right;">$26,532</td>
-<td style="text-align: right;">5.31%</td>
+<td style="text-align: right;">2.6769%</td>
+<td style="text-align: right;">$59,987</td>
+<td style="text-align: right;">$61,740</td>
+<td style="text-align: right;">12.35%</td>
 </tr>
 <tr>
 <td style="text-align: right;">$1,000,000</td>
-<td style="text-align: right;">2.8815%</td>
-<td style="text-align: right;">$40,840</td>
-<td style="text-align: right;">$42,078</td>
-<td style="text-align: right;">4.21%</td>
+<td style="text-align: right;">2.7026%</td>
+<td style="text-align: right;">$109,370</td>
+<td style="text-align: right;">$112,581</td>
+<td style="text-align: right;">11.26%</td>
 </tr>
 <tr>
 <td style="text-align: right;">$10,000,000</td>
-<td style="text-align: right;">2.9094%</td>
-<td style="text-align: right;">$309,321</td>
-<td style="text-align: right;">$318,739</td>
-<td style="text-align: right;">3.19%</td>
+<td style="text-align: right;">2.7268%</td>
+<td style="text-align: right;">$995,601</td>
+<td style="text-align: right;">$1,024,951</td>
+<td style="text-align: right;">10.25%</td>
 </tr>
 </tbody>
 </table></div>
@@ -126,18 +144,18 @@
 </tr>
 <tr>
 <td style="text-align: right;">$10,000</td>
-<td style="text-align: right;">1.4733%</td>
-<td style="text-align: right;">$10,602</td>
+<td style="text-align: right;">1.4256%</td>
+<td style="text-align: right;">$11,299</td>
 </tr>
 <tr>
 <td style="text-align: right;">$100,000</td>
-<td style="text-align: right;">2.6421%</td>
-<td style="text-align: right;">$13,860</td>
+<td style="text-align: right;">2.4917%</td>
+<td style="text-align: right;">$20,871</td>
 </tr>
 <tr>
 <td style="text-align: right;">$1,000,000</td>
-<td style="text-align: right;">2.8800%</td>
-<td style="text-align: right;">$42,613</td>
+<td style="text-align: right;">2.7013%</td>
+<td style="text-align: right;">$113,150</td>
 </tr>
 </tbody>
 </table></div>
@@ -160,13 +178,13 @@
 </tr>
 </tbody>
 </table></div>
-<h2 id="firm-concentration-comparator">FiRM concentration comparator</h2>
-<p>A separate 96% LP-debt-share scenario uses Tomax assumptions and is not a simulation of FiRM. The accepted base remains 90%. See the <a href="benchmark.html">benchmark definitions</a>.</p>
+<h2 id="previous-90-lp-10-eth-comparison">Previous 90% LP / 10% ETH comparison</h2>
+<p>The current baseline is 96% LP / 4% ETH. This table preserves the previous 90% case at the same 87.4% actual LP LTV. Neither case simulates FiRM. See the <a href="benchmark.html">benchmark definitions</a>.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
 <th style="text-align: right;">Additional debt</th>
-<th style="text-align: right;">Spot discount at 96% LP share</th>
+<th style="text-align: right;">Spot discount at 90% LP share</th>
 <th style="text-align: right;">Extra sale to edge</th>
 </tr>
 </thead>
@@ -178,18 +196,18 @@
 </tr>
 <tr>
 <td style="text-align: right;">$10,000</td>
-<td style="text-align: right;">1.4263%</td>
-<td style="text-align: right;">$11,289</td>
+<td style="text-align: right;">1.4740%</td>
+<td style="text-align: right;">$10,592</td>
 </tr>
 <tr>
 <td style="text-align: right;">$100,000</td>
-<td style="text-align: right;">2.4930%</td>
-<td style="text-align: right;">$20,810</td>
+<td style="text-align: right;">2.6434%</td>
+<td style="text-align: right;">$13,802</td>
 </tr>
 <tr>
 <td style="text-align: right;">$1,000,000</td>
-<td style="text-align: right;">2.7026%</td>
-<td style="text-align: right;">$112,581</td>
+<td style="text-align: right;">2.8815%</td>
+<td style="text-align: right;">$42,078</td>
 </tr>
 </tbody>
 </table></div>

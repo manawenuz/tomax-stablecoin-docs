@@ -1,0 +1,185 @@
+{
+  "chain": "Ethereum mainnet",
+  "gas_costs_measured": false,
+  "assumptions": {
+    "fixed_gas_per_reset": 150000,
+    "gas_per_managed_position": 450000,
+    "standalone_report_gas": 100000,
+    "funded_settlement_gas": 250000,
+    "user_loan_action_gas": 400000
+  },
+  "range_costs": [
+    {
+      "policy": "anchor_2pct",
+      "positions_per_currency": 1,
+      "assumed_gas_per_reset": 600000,
+      "effective_gwei": 1,
+      "mean_range_eth_per_day": 0.000335195530726257,
+      "p95_range_eth_per_day": 0.0012000000000000001,
+      "historical_peak_range_eth_per_day": 0.0024000000000000002
+    },
+    {
+      "policy": "anchor_2pct",
+      "positions_per_currency": 1,
+      "assumed_gas_per_reset": 600000,
+      "effective_gwei": 5,
+      "mean_range_eth_per_day": 0.0016759776536312849,
+      "p95_range_eth_per_day": 0.006,
+      "historical_peak_range_eth_per_day": 0.012
+    },
+    {
+      "policy": "anchor_2pct",
+      "positions_per_currency": 1,
+      "assumed_gas_per_reset": 600000,
+      "effective_gwei": 20,
+      "mean_range_eth_per_day": 0.0067039106145251395,
+      "p95_range_eth_per_day": 0.024,
+      "historical_peak_range_eth_per_day": 0.048
+    },
+    {
+      "policy": "anchor_2pct",
+      "positions_per_currency": 10,
+      "assumed_gas_per_reset": 4650000,
+      "effective_gwei": 1,
+      "mean_range_eth_per_day": 0.002597765363128492,
+      "p95_range_eth_per_day": 0.009300000000000001,
+      "historical_peak_range_eth_per_day": 0.018600000000000002
+    },
+    {
+      "policy": "anchor_2pct",
+      "positions_per_currency": 10,
+      "assumed_gas_per_reset": 4650000,
+      "effective_gwei": 5,
+      "mean_range_eth_per_day": 0.012988826815642458,
+      "p95_range_eth_per_day": 0.0465,
+      "historical_peak_range_eth_per_day": 0.093
+    },
+    {
+      "policy": "anchor_2pct",
+      "positions_per_currency": 10,
+      "assumed_gas_per_reset": 4650000,
+      "effective_gwei": 20,
+      "mean_range_eth_per_day": 0.05195530726256983,
+      "p95_range_eth_per_day": 0.186,
+      "historical_peak_range_eth_per_day": 0.372
+    },
+    {
+      "policy": "anchor_5pct",
+      "positions_per_currency": 1,
+      "assumed_gas_per_reset": 600000,
+      "effective_gwei": 1,
+      "mean_range_eth_per_day": 9.385474860335196e-05,
+      "p95_range_eth_per_day": 0.0006000000000000001,
+      "historical_peak_range_eth_per_day": 0.0012000000000000001
+    },
+    {
+      "policy": "anchor_5pct",
+      "positions_per_currency": 1,
+      "assumed_gas_per_reset": 600000,
+      "effective_gwei": 5,
+      "mean_range_eth_per_day": 0.0004692737430167598,
+      "p95_range_eth_per_day": 0.003,
+      "historical_peak_range_eth_per_day": 0.006
+    },
+    {
+      "policy": "anchor_5pct",
+      "positions_per_currency": 1,
+      "assumed_gas_per_reset": 600000,
+      "effective_gwei": 20,
+      "mean_range_eth_per_day": 0.0018770949720670392,
+      "p95_range_eth_per_day": 0.012,
+      "historical_peak_range_eth_per_day": 0.024
+    },
+    {
+      "policy": "anchor_5pct",
+      "positions_per_currency": 10,
+      "assumed_gas_per_reset": 4650000,
+      "effective_gwei": 1,
+      "mean_range_eth_per_day": 0.0007273743016759777,
+      "p95_range_eth_per_day": 0.0046500000000000005,
+      "historical_peak_range_eth_per_day": 0.009300000000000001
+    },
+    {
+      "policy": "anchor_5pct",
+      "positions_per_currency": 10,
+      "assumed_gas_per_reset": 4650000,
+      "effective_gwei": 5,
+      "mean_range_eth_per_day": 0.0036368715083798884,
+      "p95_range_eth_per_day": 0.02325,
+      "historical_peak_range_eth_per_day": 0.0465
+    },
+    {
+      "policy": "anchor_5pct",
+      "positions_per_currency": 10,
+      "assumed_gas_per_reset": 4650000,
+      "effective_gwei": 20,
+      "mean_range_eth_per_day": 0.014547486033519554,
+      "p95_range_eth_per_day": 0.093,
+      "historical_peak_range_eth_per_day": 0.186
+    },
+    {
+      "policy": "whole_band_5pct",
+      "positions_per_currency": 1,
+      "assumed_gas_per_reset": 600000,
+      "effective_gwei": 1,
+      "mean_range_eth_per_day": 0.0001240223463687151,
+      "p95_range_eth_per_day": 0.0006000000000000001,
+      "historical_peak_range_eth_per_day": 0.0018000000000000002
+    },
+    {
+      "policy": "whole_band_5pct",
+      "positions_per_currency": 1,
+      "assumed_gas_per_reset": 600000,
+      "effective_gwei": 5,
+      "mean_range_eth_per_day": 0.0006201117318435754,
+      "p95_range_eth_per_day": 0.003,
+      "historical_peak_range_eth_per_day": 0.009000000000000001
+    },
+    {
+      "policy": "whole_band_5pct",
+      "positions_per_currency": 1,
+      "assumed_gas_per_reset": 600000,
+      "effective_gwei": 20,
+      "mean_range_eth_per_day": 0.002480446927374302,
+      "p95_range_eth_per_day": 0.012,
+      "historical_peak_range_eth_per_day": 0.036000000000000004
+    },
+    {
+      "policy": "whole_band_5pct",
+      "positions_per_currency": 10,
+      "assumed_gas_per_reset": 4650000,
+      "effective_gwei": 1,
+      "mean_range_eth_per_day": 0.000961173184357542,
+      "p95_range_eth_per_day": 0.0046500000000000005,
+      "historical_peak_range_eth_per_day": 0.01395
+    },
+    {
+      "policy": "whole_band_5pct",
+      "positions_per_currency": 10,
+      "assumed_gas_per_reset": 4650000,
+      "effective_gwei": 5,
+      "mean_range_eth_per_day": 0.00480586592178771,
+      "p95_range_eth_per_day": 0.02325,
+      "historical_peak_range_eth_per_day": 0.06975
+    },
+    {
+      "policy": "whole_band_5pct",
+      "positions_per_currency": 10,
+      "assumed_gas_per_reset": 4650000,
+      "effective_gwei": 20,
+      "mean_range_eth_per_day": 0.01922346368715084,
+      "p95_range_eth_per_day": 0.093,
+      "historical_peak_range_eth_per_day": 0.279
+    }
+  ],
+  "treasury_note": "Users pay their own loan/report calls by default; no fixed heartbeat required for pull oracle",
+  "exclusions": [
+    "L2 fees",
+    "bridging",
+    "inventory trading and slippage",
+    "exchange costs",
+    "oracle data services",
+    "keeper infrastructure",
+    "collateral and liquidation capital"
+  ]
+}

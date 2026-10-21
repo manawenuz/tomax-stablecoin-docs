@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
 <title>Issuance simulation and capacity · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
-<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html" aria-current="page">Simulation</a><a href="results.html">Result tables</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="issuance-simulation-and-capacity">Issuance simulation and capacity</h1>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html" aria-current="page">Simulation</a><a href="results.html">Result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Zarban scenario</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="issuance-simulation-and-capacity">Issuance simulation and capacity</h1>
 <p>The target trading range is 0.97 to 1.00 of external parity, starting at 1.00. The baseline has no finite issuance ceiling at the 0.97 lower boundary under continuing proportional LP entry. It does have finite secondary selling capacity at every point. Those statements describe AMM inventory; they do not establish solvency, holder demand, or a launch debt ceiling.</p>
 <h2 id="definitions-and-assumptions">Definitions and assumptions</h2>
 <div class="table-wrap"><table>
@@ -17,7 +17,7 @@
 <tbody>
 <tr>
 <td>Initial total LP value at external FX peg</td>
-<td>$10,000 per currency; scale cases $20,000 and $50,000</td>
+<td>$10,000 per currency; scale cases $20,000, $30,000, $40,000 and $50,000</td>
 </tr>
 <tr>
 <td>Stable token price at start</td>
@@ -33,11 +33,11 @@
 </tr>
 <tr>
 <td>Share of additional debt backed by LP</td>
-<td>90%, measured by debt issued</td>
+<td>96%, measured by debt issued</td>
 </tr>
 <tr>
 <td>Share backed by independently collateralized ETH</td>
-<td>10%</td>
+<td>4%</td>
 </tr>
 <tr>
 <td>Maximum LP LTV and utilization</td>
@@ -78,8 +78,8 @@
 <h2 id="transaction-sequence">Transaction sequence</h2>
 <p>For each cohort of additional debt D:</p>
 <ol>
-<li>Allocate 0.9 D to LP loans and 0.1 D to ETH loans.</li>
-<li>Set required new LP collateral value to 0.9 D / 0.874.</li>
+<li>Allocate 0.96 D to LP loans and 0.04 D to ETH loans.</li>
+<li>Set required new LP collateral value to 0.96 D / 0.874.</li>
 <li>Solve for the stablecoin purchase that permits depositing that collateral in the <strong>post-purchase</strong> pool ratio. At the starting upper boundary, this purchase is zero and the LP deposit is quote-only.</li>
 <li>Execute the purchase and deposit both legs into the common range.</li>
 <li>Mint and sell the LP debt.</li>
@@ -97,11 +97,11 @@ LP collateral value at external peg = x + y
 <h2 id="why-issuance-does-not-reach-the-boundary">Why issuance does not reach the boundary</h2>
 <p>Let lambda be actual LP LTV and w the LP share of new debt. For each unit of new LP collateral value, total new debt is lambda / w. At zero fees, buying and redepositing the stable leg cancels that leg's inventory change; selling new debt adds lambda / w units of stablecoin to pool principal.</p>
 <p>At a stationary price, the pool's stablecoin share at peg valuation therefore approaches:</p>
-<pre><code class="language-text">r = lambda / w = 0.874 / 0.9 = 0.971111...
+<pre><code class="language-text">r = lambda / w = 0.874 / 0.96 = 0.9104167...
 </code></pre>
-<p>There is still a positive quote share. Solving the V3 reserve equations for that inventory yields p = 0.97087269, or a 2.91273056% discount from parity. This is an infinitesimal-cohort limiting argument, confirmed by progressively larger finite issuance runs.</p>
+<p>There is still a positive quote share. Solving the V3 reserve equations for that inventory yields p = 0.97270271, or a 2.72972918% discount from parity. This is an infinitesimal-cohort limiting argument, confirmed by progressively larger finite issuance runs.</p>
 <p>For this mechanism, positive asymptotic quote inventory requires w &gt; lambda at zero fees. At w = lambda the path approaches the lower edge with vanishing headroom; when w &lt; lambda it reaches the edge at finite issuance. With only 85% LP-backed debt, the model reaches the boundary at approximately $396,781 of additional debt for a $10,000 seed.</p>
-<p>The 87.4% actual LTV is a material condition. If users can later draw up to the full 95% maximum without adding LP, the assumed path no longer applies. At 95% actual LTV and 90% LP-backed debt, issuance reaches the boundary at finite debt. A utilization target is not an enforceable maximum. Interest or fee tokens distributed and sold without new LP also consume quote capacity.</p>
+<p>The 87.4% actual LTV is a material condition. If users can later draw up to the full 95% maximum without adding LP, the assumed path no longer applies. The old 90% LP scenario reaches the edge at 95% actual LTV. In the current 96% LP scenario, 95% actual LTV remains below the LP share and retains a positive ideal quote fraction, but leaves far less exit capacity. A utilization target is not an enforceable maximum. Interest or fee tokens distributed and sold without new LP also consume quote capacity.</p>
 <p>With non-reinvested input fees f, active stable input is reduced and the ideal stationary share becomes lambda * (1-f) / w. Fees are not a reason to enlarge a production risk limit.</p>
 <h2 id="results-for-10k-to-50k-seed-liquidity">Results for 10k to 50k seed liquidity</h2>
 <p>Results scale linearly with capital while gas, transaction granularity, market depth elsewhere, and operating overhead do not. Equal debt-to-seed ratios produce equal modeled spot discounts.</p>
@@ -116,45 +116,47 @@ LP collateral value at external peg = x + y
 </thead>
 <tbody>
 <tr>
-<td style="text-align: right;">1.474%</td>
+<td style="text-align: right;">1.426%</td>
 <td style="text-align: right;">$10,000</td>
 <td style="text-align: right;">$20,000</td>
 <td style="text-align: right;">$50,000</td>
 </tr>
 <tr>
-<td style="text-align: right;">2.426%</td>
+<td style="text-align: right;">2.299%</td>
 <td style="text-align: right;">$50,000</td>
 <td style="text-align: right;">$100,000</td>
 <td style="text-align: right;">$250,000</td>
 </tr>
 <tr>
-<td style="text-align: right;">2.643%</td>
+<td style="text-align: right;">2.493%</td>
 <td style="text-align: right;">$100,000</td>
 <td style="text-align: right;">$200,000</td>
 <td style="text-align: right;">$500,000</td>
 </tr>
 <tr>
-<td style="text-align: right;">2.796%</td>
+<td style="text-align: right;">2.628%</td>
 <td style="text-align: right;">$250,000</td>
 <td style="text-align: right;">$500,000</td>
 <td style="text-align: right;">$1,250,000</td>
 </tr>
 <tr>
-<td style="text-align: right;">2.881%</td>
+<td style="text-align: right;">2.703%</td>
 <td style="text-align: right;">$1,000,000</td>
 <td style="text-align: right;">$2,000,000</td>
 <td style="text-align: right;">$5,000,000</td>
 </tr>
 </tbody>
 </table></div>
-<p>These are additional debt scenarios, not recommended issuance caps. The 0.97 boundary alone permits arbitrarily large modeled issuance with continued outside borrower capital. A 96% LP-debt sensitivity is also recorded as a comparator to the <a href="benchmark.html">FiRM benchmark</a>; it does not replace the accepted 90% base case.</p>
+<p>These are additional debt scenarios, not recommended issuance caps. The 0.97 boundary alone permits arbitrarily large modeled issuance with continued outside borrower capital. The requested 96% LP / 4% ETH case is the current baseline; the old 90% LP / 10% ETH case remains in the generated comparison. The <a href="benchmark.html">FiRM benchmark</a> uses a different accounting denominator.</p>
 <h2 id="secondary-selling-envelopes">Secondary selling envelopes</h2>
 <p>After entry, a holder may sell without adding LP. A practical depth constraint can require the pool to absorb a specified fraction of additional debt with <strong>no intervening new borrowing, liquidity injection, or redemption</strong>. The generated envelope table gives the resulting conditional issuance amounts.</p>
+<p>For the current 96/4 scenario, remaining sale capacity asymptotically approaches <strong>10.1300% of additional debt</strong>. Therefore 5% and 10% separate-sale rules give no finite crossing in this ideal path. A 20% rule gives about $108,394 additional debt per $10k seed; a 30% rule gives about $53,039. These are conditional depth envelopes, not probabilities or safe launch caps. Compare $10k through $50k seeds in the <a href="results.html">generated tables</a>.</p>
 <p>The percentage is an assumed simultaneous exit, not a measured probability. Any separately issued initial tokens or other unmodeled liabilities must be added to the denominator to calculate a full-supply run envelope. The envelopes exclude liquidations, LP withdrawals, devaluation gaps, and correlated selling across the three currencies.</p>
 <p><a href="results.html">Generated tables</a> contain the calculated envelopes and fee sensitivity. Independent simulations must test adverse ordering, discrete ticks, actual quote assets, withdrawals, debt repayment, vault closures, rate changes, liquidation shortfalls, FX gaps, and oracle outages before a production cap is proposed.</p>
 <h2 id="ordering-and-actual-deployment">Ordering and actual deployment</h2>
-<p>The modeled cohort adds LP before selling its proportional ETH debt. A global 90/10 target does not prevent an ETH-first burst from consuming the seed quote reserve before LP arrives. Enforce ETH mint headroom against realized liquidity and funded redemption capacity, not expected future LP deposits.</p>
+<p>The modeled cohort adds LP before selling its proportional ETH debt. A global 96/4 target does not prevent an ETH-first burst from consuming the seed quote reserve before LP arrives. Enforce ETH mint headroom against realized liquidity and funded redemption capacity, not expected future LP deposits.</p>
 <p>A static range follows neither local FX nor sUSDe appreciation. Repositioning changes custody, inventory, price exposure, and execution costs; those effects require a separate stress model. The 0.97 lower bound permits a 3% spot discount from parity and excludes fees, gas, and oracle uncertainty from that price measure. Debt expansion above parity is a proposed separate mechanism, not a simulated flow. <a href="market-making.html">Market making and range management</a> explains the required transactions.</p>
+<p>The <a href="fx-volatility.html">historical FX workload</a> is a separate trigger backtest, not a coupled simulation of these vaults through FX changes. The <a href="zarban.html">Zarban savings-share scenario</a> also needs a coupled rate, bridge and exit model before these fixed-quote envelopes can be reused as risk limits.</p>
 <h2 id="reproduce-and-inspect">Reproduce and inspect</h2>
 <pre><code class="language-sh">python3 -m unittest discover -s tests -v
 python3 -m model.simulate --output results

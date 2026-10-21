@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
 <title>Decisions and open questions · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
-<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html" aria-current="page">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="decisions-and-open-questions">Decisions and open questions</h1>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Zarban scenario</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html" aria-current="page">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="decisions-and-open-questions">Decisions and open questions</h1>
 <h2 id="accepted-research-assumptions">Accepted research assumptions</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -32,7 +32,7 @@
 </tr>
 <tr>
 <td>Research debt mix</td>
-<td>90% LP-backed and 10% ETH-backed additional debt</td>
+<td>96% LP-backed and 4% ETH-backed additional debt</td>
 </tr>
 <tr>
 <td>Research actual LP LTV</td>
@@ -66,10 +66,26 @@
 <td>Repository sharing</td>
 <td>Private research source and separately public documentation on Pages</td>
 </tr>
+<tr>
+<td>FX workload data</td>
+<td>Wallex USDT/TMN and Binance spot USDT/TRY, USDT/ARS; 179 complete local analysis days</td>
+</tr>
+<tr>
+<td>Tracking tolerance</td>
+<td>Distinguish anchor drift from total band deviation; 2% total-band tolerance conflicts with the 3% band width</td>
+</tr>
+<tr>
+<td>Gas planning</td>
+<td>Ethereum mainnet scenarios; gas units assumed pending prototype measurement</td>
+</tr>
+<tr>
+<td>Alternate quote</td>
+<td>Research proposed Zarban static savings share on Ethereum; wrapper, bridge and committed exits remain unverified</td>
+</tr>
 </tbody>
 </table></div>
 <p>The 12.6% difference between LP collateral and actual debt is equity. No 8% fee or withheld debt-token distribution is assumed.</p>
-<p>The initial 0.985 to 1.015 range and midpoint-start interpretation were superseded by the explicit 0.97 to 1.00 range starting at 1.00. Published results and downloads use the corrected configuration. The supplied FiRM benchmark uses 96% LP debt share as a comparator; the base case remains 90%.</p>
+<p>The initial 0.985 to 1.015 range and midpoint-start interpretation were superseded by the explicit 0.97 to 1.00 range starting at 1.00. Published results and downloads use the corrected configuration. The current 96% LP / 4% ETH base supersedes the earlier 90% / 10% case, which remains a comparison. The FiRM benchmark is separate: it is not an audited seed-capital ratio.</p>
 <h2 id="proposed-requirements">Proposed requirements</h2>
 <p>Use independently verified source observations, recoverable LP inventory, atomic own-token netting, separate market budgets, capped ETH issuance, funded settlement, bounded queues, and permissions that can restrict exposure without seizing unrelated collateral. Treat an offchain hedge as optional management of funded inventory.</p>
 <h2 id="choices-before-implementation">Choices before implementation</h2>
@@ -79,6 +95,8 @@
 <li>Interest engine, gross versus residual borrowing-cost basis, borrowing-right supply policy, and revenue split.</li>
 <li>Direct redemption rights, fees, collateral routing, and outage behavior.</li>
 <li>Quote asset and acceptable delays, custody, market-price risk, and redemption routes.</li>
+<li>Whether the IRR product accepts Zarban ZAR as its reference or promises an independent composite-market peg.</li>
+<li>For a Zarban partnership: source wrapper, authenticated cross-chain rate, bridge counterpart, loss policy and committed mainnet/source exits.</li>
 <li>ETH borrow LTV, liquidation threshold, debt ceilings, and funded backstop capacity.</li>
 <li>Permitted LP ranges, pooling or wrappers, manager powers, and valuation during manipulation.</li>
 <li>Queue deadlines, curing rights, loss and surplus allocation, and sponsorship caps.</li>

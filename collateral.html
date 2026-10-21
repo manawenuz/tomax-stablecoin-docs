@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
 <title>Collateral onboarding requirements · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
-<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html" aria-current="page">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="collateral-onboarding-requirements">Collateral onboarding requirements</h1>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Zarban scenario</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html" aria-current="page">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="collateral-onboarding-requirements">Collateral onboarding requirements</h1>
 <p>Collateral expansion must preserve recoverable backing and liquidation capacity. A liquid ticker is insufficient if its accepted wrapper, chain, or redemption route cannot settle during stress.</p>
 <h2 id="initial-categories">Initial categories</h2>
 <div class="table-wrap"><table>
@@ -31,15 +31,21 @@
 <td>Asset-market price, vault exchange rate, redeemability and delays</td>
 <td>Depeg, share inflation, cooldown, bridge or custodian exposure</td>
 </tr>
+<tr>
+<td>Proposed bridged Zarban savings share</td>
+<td>Complete ZAR/share rate, chain authentication, ZAR reference/market value and executable exits</td>
+<td>Upstream peg/lending loss, stale cross-chain rate, bridge failure, depleted source cash or mainnet depth</td>
+</tr>
 </tbody>
 </table></div>
-<p>ETH LTV is unresolved. The 87.4% actual LP LTV must not be copied to ETH. The 90/10 debt mixture fixes sale volume in the simulation but does not determine required ETH collateral or its liquidation safety.</p>
+<p>ETH LTV is unresolved. The 87.4% actual LP LTV must not be copied to ETH. The 96/4 debt mixture fixes sale volume in the simulation but does not determine required ETH collateral or its liquidation safety.</p>
+<p>The <a href="zarban.html">Zarban scenario</a> is a collateral/quote alternative, not an admitted asset. A ZAR savings ratio alone does not value ETH or TRY/ARS debt.</p>
 <h2 id="adapter-admission">Adapter admission</h2>
 <p>Each proposal must identify token contracts and implementations, admin powers, upgrades, transfers, fees, rebases, decimals, wrapper claims, dependencies, approved venues, and expected redemption delay. Include external executable liquidity across stressed notionals, keeper economics, correlated exposures, and oracle fallbacks.</p>
 <p>For V3 collateral, specify factory and pool validation, position ownership, ticks and fee tier, in-range and out-of-range inventory, fee entitlements, manager authority, and an atomic recover-and-net path. Spot reserve composition is observable but remains manipulable within a transaction. Valuation must demonstrate that a flash trade, liquidity donation, or attacker-selected range cannot inflate borrowing power.</p>
 <p>Admission requires tests for balance manipulation, supply/share donation, rounding, callback reentrancy, bad token behavior, stale FX, and quote-asset depeg. Test loss attribution when the same underlying pool backs many vaults.</p>
 <h2 id="parameters-and-exposure-controls">Parameters and exposure controls</h2>
 <p>Configure collateral-specific borrow LTV, liquidation threshold, incentive, debt ceiling, rolling issuance limit, minimum economic vault size, concentration limit, oracle age, and accepted uncertainty. Borrow LTV and liquidation threshold are distinct parameters. Record whether caps are native currency or external value and how FX movements affect them.</p>
-<p>Market headroom must reserve quote capacity for existing exits and queued settlement. A 10% target for volatile-backed debt is an upper policy envelope, not a right to borrow through exhausted quote reserves.</p>
+<p>Market headroom must reserve quote capacity for existing exits and queued settlement. A 4% target for volatile-backed debt is an upper policy envelope, not a right to borrow through exhausted quote reserves.</p>
 <h2 id="rollout-and-retirement">Rollout and retirement</h2>
 <p>Use review, a timelocked allowlist change, a small capped pilot, observed settlement, and measured increases. A guardian may reduce new exposure rapidly but must not grant arbitrary asset-transfer authority. Retirement stops new borrowing, preserves repayment, provides an exit path, and accounts for existing debt until settled. Adding or removing an asset never silently transfers its loss to another currency market.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

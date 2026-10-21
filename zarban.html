@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>Zarban savings-share quote asset · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html" aria-current="page">Zarban scenario</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="zarban-savings-share-quote-asset">Zarban savings-share quote asset</h1>
+<p>The proposed partnership is plausible for an <strong>IRR-family pool</strong>: use a static savings share backed by Zarban's Iranian ZAR, bridge that share to Ethereum, and quote the Tomax token against it. If Tomax accepts ZAR as its currency reference, the relative pool target can use the savings ratio rather than an independent IRR/USD feed. That saves one source of price motion while importing Zarban's peg, lending, bridge and exit risks.</p>
+<p>Here ZAR means <strong>Zarban's token</strong>, not South African rand. <code>sZAR</code> below is a proposed static share; no deployed sZAR product, Ethereum counterpart or supported bridge route was verified in this research.</p>
+<h2 id="existing-components-and-proposed-work">Existing components and proposed work</h2>
+<p>Zarban identifies Arbitrum as its native network and describes ZAR borrowing against crypto collateral and yield on deposits. Its issuer article states a target of <strong>1 ZAR = 1,000 toman</strong>. Under the recorded 10-rial/toman convention, that is 10,000 IRR. An integration must version denomination conventions and token decimals rather than treating a ZAR as one rial. <a href="https://zarban.io/">Zarban website</a>, <a href="https://www.linkedin.com/pulse/%D8%AD%D9%84%D9%82%D9%87-%DA%AF%D9%85%D8%B4%D8%AF%D9%87-%D8%AB%D8%A8%D8%A7%D8%AA-%D8%AF%D8%B1-%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF-%D8%AF%DB%8C%D8%AC%DB%8C%D8%AA%D8%A7%D9%84-%D8%A7%DB%8C%D8%B1%D8%A7%D9%86-zarban-protocol-f0cuf">issuer denomination article</a>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Evidence or required work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Arbitrum ZAR</td>
+<td>Official token list identifies chain 42161, 18 decimals, <code>0xd946188A614A0d9d0685a60F541bba1e8CC421ae</code></td>
+</tr>
+<tr>
+<td>Interest-bearing ZAR receipt</td>
+<td>Official subgraph identifies zZAR / Zarban Market ZAR at <code>0x1b0aB2827C4d25B3387C1D1bc9c076Fe0c7EdFb9</code></td>
+</tr>
+<tr>
+<td>Receipt accounting</td>
+<td>Published ZToken code calculates balances from scaled principal and a reserve income index; interest appears as balance growth</td>
+</tr>
+<tr>
+<td>Static source savings wrapper</td>
+<td>Proposed; convert accruing claims into fixed share balances with a complete ZAR/share rate</td>
+</tr>
+<tr>
+<td>Ethereum share representation</td>
+<td>Proposed; verify gateway/counterpart, escrow, mint/burn permissions and supply conservation</td>
+</tr>
+<tr>
+<td>Authenticated mainnet rate consumer</td>
+<td>Proposed; specify freshness, losses, replay protection and emergency behavior</td>
+</tr>
+<tr>
+<td>Exit-liquidity agreement</td>
+<td>Required; no unconditional face-value ZAR-to-USDT/fiat route was verified</td>
+</tr>
+</tbody>
+</table></div>
+<p>Address evidence: <a href="https://github.com/zarbanio/token-list/blob/main/tokens/arbitrum.json">official token list</a>, <a href="https://github.com/zarbanio/subgraph/blob/main/src/helper/constants.ts">market constant</a>, <a href="https://github.com/zarbanio/zarban-liquidity-market/blob/main/contracts/protocol/tokenization/ZToken.sol">published ZToken implementation</a>. These identify source components, not current solvency, available cash or a completed deployed-implementation audit.</p>
+<p>The smallest useful partnership request may be <strong>a static wrapper around the existing receipt</strong>, rather than a new lending system. A wrapper with <code>asset() = ZAR</code> can deposit into the lending market and report ZAR per share. A wrapper with <code>asset() = zZAR</code> needs explicit receipt-to-ZAR accounting; its ERC-4626 conversion is not automatically the complete ZAR/share conversion. Do not count the lending index twice. A bridge holding a rebasing receipt also needs to allocate interest correctly; static source shares make unit conservation easier.</p>
+<p>Proposed custody flow:</p>
+<pre><code class="language-text">ZAR -&gt; Zarban lending market -&gt; accruing zZAR
+    -&gt; static source sZAR -&gt; authenticated bridge
+    -&gt; Ethereum sZAR representation -&gt; Tomax/sZAR managed LP
+</code></pre>
+<h2 id="which-prices-disappear-and-which-remain">Which prices disappear, and which remain</h2>
+<p>Let <code>r(t)</code> be ZAR claim units per sZAR, <code>K = 1,000</code> toman per ZAR, and a Tomax token <code>T</code> target <code>a</code> toman. The target quote price is:</p>
+<pre><code class="language-text">R(t) = a / (K * r(t))    sZAR per T
+LP target bounds = [0.97 * R(t), R(t)]
+</code></pre>
+<p>For a one-rial token, <code>a = 0.1</code> under the recorded convention, so <code>R = 1/(10,000*r)</code>. For a one-toman token, <code>R = 1/(1,000*r)</code>. If both assets use the same ZAR-sized currency unit, <code>R = 1/r</code>. Apply decimal scaling and token order before translating this to ticks.</p>
+<p>For TRY or ARS, let <code>E(t)</code> be toman per unit of that currency and <code>a_F</code> its units per Tomax token. Then <code>R = a_F * E(t) / (K*r(t))</code>. The <strong>cross-FX feed remains necessary</strong>. One Iranian quote asset cannot remove FX from all three products.</p>
+<p>Using only <code>r</code> in the IRR pool makes ZAR the reference. If ZAR trades below its fiat target, Tomax can inherit that deviation. If Tomax instead promises an independent accessible-market IRR peg, it needs an independent check of ZAR's actual market value and exits. The <strong>4% ETH-backed branch still needs ETH valued in the debt currency</strong>; a ZAR/share ratio alone cannot price ETH. USD-based solvency reports also need FX. The proposal removes a feed from a particular relative pool target, not every oracle dependency in the protocol.</p>
+<h2 id="delivering-the-rate-from-arbitrum-to-ethereum">Delivering the rate from Arbitrum to Ethereum</h2>
+<p>Ethereum cannot synchronously call a remote Arbitrum vault's <code>convertToAssets</code>. Canonical Arbitrum-to-Ethereum messages become executable <strong>about one week later</strong>. This applies to rate messages as well as token withdrawals. An old authenticated rate is not a fresh redemption price. <a href="https://docs.arbitrum.io/arbitrum-essentials/bridging/cross-chain-messaging">Arbitrum cross-chain messaging</a>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Rate design</th>
+<th>Benefit</th>
+<th>Required limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Canonical message/proof</td>
+<td>Rollup-authenticated source state</td>
+<td>Accept confirmation lag and conservatively bound rate changes and losses</td>
+</tr>
+<tr>
+<td>Faster bridge or reporter quorum</td>
+<td>Fresher mainnet observation</td>
+<td>Additional signer/bridge trust, availability and upgrade assumptions</td>
+</tr>
+<tr>
+<td>Local accrual from a checkpoint</td>
+<td>Fewer routine updates</td>
+<td>Must authenticate and bound rate changes, fees, losses and pauses; variable lending APR is not exactly predictable</td>
+</tr>
+</tbody>
+</table></div>
+<p>Each report must bind source chain, vault, authenticated sender, source block/time, rate units, sequence and maximum age. Reject replays and unexpected rate jumps. Permit a verified loss to reduce the rate; an always-increasing feed could overvalue impaired assets. Pause exposure increases on stale or conflicting data and retain a funded exit/settlement policy.</p>
+<p>An Arbitrum-origin token may need a reverse/custom gateway to mint its parent-chain representation. Gateway registration and the complete round trip must be verified; standard L1-origin token support is not proof of support for this share. Mainnet-to-Arbitrum return messages have different timing from Arbitrum-to-mainnet confirmation. <a href="https://docs.arbitrum.io/how-arbitrum-works/deep-dives/token-bridging">Token-bridge architecture</a>, <a href="https://docs.arbitrum.io/arbitrum-essentials/bridging/withdraw/tokens">withdrawal guide</a>.</p>
+<h2 id="exit-liquidity-is-a-separate-deliverable">Exit liquidity is a separate deliverable</h2>
+<p>There are three different exits: <strong>sZAR to a source lending claim; lending claim to liquid ZAR; ZAR to USDT or fiat</strong>. Each can have its own delay, available cash, fees, access rules and failure modes. ERC-4626's accounting conversion does not guarantee a withdrawal; available limits and execution matter. <a href="https://eips.ethereum.org/EIPS/eip-4626">ERC-4626 standard</a>. Zarban's published withdrawal path checks pause/reserve/account conditions and transfers underlying, so wrapper NAV does not create missing cash. <a href="https://github.com/zarbanio/zarban-liquidity-market/blob/main/contracts/protocol/lendingpool/LendingPool.sol">Lending pool source</a>.</p>
+<p>“Zarban handles exits” should therefore be a concrete partnership condition: who buys which asset, on which chain, at what price rule, in what size, against what committed inventory, within what time, and during which depeg/outage conditions. Identify eligibility restrictions, fees, suspension powers, enforceability and loss allocation. Source-chain liquidity is not automatically accessible to a mainnet user at the moment they need it. Include a funded mainnet buffer or executable market-maker route if immediate mainnet exits are required.</p>
+<p>For scale, the <a href="https://api.llama.fi/protocol/zarban">DefiLlama Zarban API</a> reported approximately <strong>$46.4k Arbitrum TVL and $3.0k borrowed</strong> when retrieved on 21 October 2026 at 11:46 UTC. This is a third-party tracked-asset observation, not available ZAR cash, provider capital, redemption capacity or executable market depth. A $10k–$50k quote allocation is already material relative to that displayed size; obtain current reserve and venue-depth evidence and a funding commitment rather than assuming the upstream exit route will scale automatically. The <a href="https://defillama.com/protocol/zarban">protocol page</a> and API can change after this observation.</p>
+<h2 id="range-movement-and-economics">Range movement and economics</h2>
+<p>For same-currency pairing, <code>d log R = -d log r</code>: yield replaces FX as the ordinary source of target drift. At an <strong>illustrative constant 40% effective APY</strong>, a share-driven target decline of 2%, 3% or 5% takes about 21.9, 33.0 or 55.6 days respectively:</p>
+<pre><code class="language-text">days = -365 * ln(1 - drift) / ln(1 + APY)
+</code></pre>
+<p>This is not a Zarban yield forecast. Actual rates depend on its lending market; pauses, losses and bridge events can change the economics abruptly. At the initial upper boundary, immediate quote liquidity is the mainnet sZAR inventory, not cash USDT. Haircut its executable recovery value and borrowing limits accordingly.</p>
+<p>The fixed-quote <a href="results.html">96/4 issuance results</a> can be read as normalized, frozen-rate inventory scenarios. They must not be presented as a simulation of evolving savings yield, bridge lag, provider exits or ZAR depegs. Extend the model before transferring their debt envelopes to this design. Specify who receives quote yield and how borrowing costs, LP fees and DBR incentives cover subsidies without circular revenue assumptions.</p>
+<h2 id="decision-and-rfp-requirements">Decision and RFP requirements</h2>
+<p>Compare direct FX pools against this partnership using the same debt, exit-size and stress assumptions. Same-currency pairing can lower FX trading churn; bridging adds security scope and capital delays. A native Arbitrum deployment is a useful comparison because it avoids this particular cross-chain rate/representation dependency, while changing chain and sequencer assumptions.</p>
+<p>Before accepting this collateral, verify pinned-block implementations and admins, ZAR mint powers and decimals, zZAR underlying and pool, reserve cash/debt/index/rate, wrapper accounting and donation defenses, bridge escrow/supply, rate authentication, and stressed executable exits. Official source configurations currently disagree about the lending-pool address; resolve the receipt's <code>POOL()</code> and provider's current pool from live contracts. Do not select a deployment from a repository filename alone. <a href="https://github.com/zarbanio/subgraph/blob/main/networks.json">Official network configuration</a>, <a href="https://github.com/zarbanio/subgraph/blob/main/subgraph.yaml">subgraph manifest</a>.</p>
+<p>The RFP must price independent wrapper/bridge review, rate-feed failure exercises and an explicit liquidity commitment. Cross-protocol collateral loops, especially acceptance of Tomax-backed claims upstream, need separate caps and correlated-loss analysis. This remains a documented design alternative, with no provider agreement or deployment implied.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

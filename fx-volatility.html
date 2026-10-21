@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="description" content="Research and RFP for LP-backed local currency tracking tokens">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
+<title>FX volatility and range-update workload · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="fx-volatility.html" aria-current="page">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Zarban scenario</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="fx-volatility-and-range-update-workload">FX volatility and range-update workload</h1>
+<p>The historical sample suggests frequent IRR adjustments and much fewer TRY/ARS adjustments at hourly closes. It also contains intrahour spikes that the close-only counts miss. These counts estimate operational workload; they do not prove continuous tracking within a tolerance.</p>
+<h2 id="actual-inputs-and-analysis-window">Actual inputs and analysis window</h2>
+<p>We downloaded 180 days of hourly exchange candles, from 24 April to 21 October 2026 UTC, with the end excluded. Daily analysis uses <strong>179 complete days in Asia/Tbilisi, 25 April through 20 October 2026 inclusive</strong>. This is a venue-price backtest, not a forecast or an inflation series.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Currency</th>
+<th>Market</th>
+<th style="text-align: right;">Daily log-return volatility</th>
+<th style="text-align: right;">Largest absolute complete-day move</th>
+<th style="text-align: right;">Largest hourly high/low span</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IRR</td>
+<td>Wallex USDT/TMN, converted to IRR</td>
+<td style="text-align: right;">1.617%</td>
+<td style="text-align: right;">7.501%</td>
+<td style="text-align: right;">8.723%</td>
+</tr>
+<tr>
+<td>TRY</td>
+<td>Binance spot USDT/TRY</td>
+<td style="text-align: right;">0.155%</td>
+<td style="text-align: right;">0.500%</td>
+<td style="text-align: right;">4.347%</td>
+</tr>
+<tr>
+<td>ARS</td>
+<td>Binance spot USDT/ARS</td>
+<td style="text-align: right;">0.418%</td>
+<td style="text-align: right;">1.461%</td>
+<td style="text-align: right;">11.799%</td>
+</tr>
+</tbody>
+</table></div>
+<p>Daily volatility is the sample standard deviation of daily log returns, without annualization. Only full 24-hour days enter that statistic: 176 days for IRR and 179 for TRY/ARS. Hourly spans can include isolated trades or illiquid prints; they are not automatically valid composite-oracle moves. Sources: <a href="https://api-docs.wallex.ir/">Wallex API</a> and <a href="https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints#klinecandlestick-data">Binance market-data API</a>.</p>
+<p>The IRR analysis has 4,279 of 4,296 expected hourly bars: <strong>17 missing hours and 182 supplied zero-volume bars</strong>. TRY and ARS have all 4,296 bars. Missing bars remain missing; no interpolation is used. Wallex reports toman, so OHLC values are multiplied by 10 under the recorded rial/toman convention. These are local-currency prices of <strong>USDT</strong>, not official USD fixings; venue premiums and USDT/USD basis remain outside the model. The production Telegram/Chand/multi-exchange composite has not been backtested here. Its disagreement rules and licensed history are separate work.</p>
+<h2 id="what-within-25-means">What “within 2–5%” means</h2>
+<p>Let <code>q</code> be local currency per USDT and <code>R = 1/q</code> the token's parity in USDT. A range installed at the last anchor has bounds <code>[0.97 R_anchor, R_anchor]</code>. Relative to current parity, the bounds are:</p>
+<pre><code class="language-text">ratio = R_anchor / R_current = q_current / q_anchor
+relative bounds = [0.97 * ratio, ratio]
+</code></pre>
+<p>A <strong>2% anchor-drift threshold</strong> triggers when <code>abs(ratio - 1) &gt; 0.02</code>. It does not mean every tradable price is within 2% of parity. Even just before a reset, the lower edge can be <code>0.97 * 0.98 = 0.9506</code>, a 4.94% discount. A 5% anchor threshold can permit a 7.85% lower-edge discount.</p>
+<p>To keep the <strong>entire band within 5%</strong> of parity, reset when <code>ratio &lt; 0.95/0.97 = 0.97938144</code> or <code>ratio &gt; 1.05</code>. This rule is asymmetric because the band starts at parity and extends downward. Keeping the entire 0.97–1.00 band within 2% is <strong>infeasible even with a perfectly fresh anchor</strong>: the intentional lower bound already allows a 3% discount. A 2% total-price requirement would need a narrower admissible band or an additional price-support mechanism.</p>
+<h2 id="observed-hourly-close-reset-counts">Observed hourly-close reset counts</h2>
+<p>Each backtest starts at the first bar's open, observes successive hourly closes, and resets the anchor to the current close after a breach. It does not reset to future prices or infer an intrahour execution path.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Market</th>
+<th style="text-align: right;">2% anchor: total / daily mean</th>
+<th style="text-align: right;">5% anchor: total / daily mean</th>
+<th style="text-align: right;">Entire band within 5%: total / daily mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IRR</td>
+<td style="text-align: right;">92 / 0.514</td>
+<td style="text-align: right;">26 / 0.145</td>
+<td style="text-align: right;">35 / 0.196</td>
+</tr>
+<tr>
+<td>TRY</td>
+<td style="text-align: right;">4 / 0.022</td>
+<td style="text-align: right;">1 / 0.006</td>
+<td style="text-align: right;">1 / 0.006</td>
+</tr>
+<tr>
+<td>ARS</td>
+<td style="text-align: right;">4 / 0.022</td>
+<td style="text-align: right;">1 / 0.006</td>
+<td style="text-align: right;">1 / 0.006</td>
+</tr>
+<tr>
+<td>All three</td>
+<td style="text-align: right;">100 / 0.559</td>
+<td style="text-align: right;">28 / 0.156</td>
+<td style="text-align: right;">37 / 0.207</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Policy across all three</th>
+<th style="text-align: right;">95th-percentile daily resets</th>
+<th style="text-align: right;">Maximum daily resets</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2% anchor</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>5% anchor</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>Entire band within 5%</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table></div>
+<p>Daily totals are aggregated on the same dates, rather than adding each market's separate peak. The displayed 95th percentile includes zero-update days. The mean is useful for budgeting, but does not fund a volatile day by itself.</p>
+<h2 id="limits-and-operating-policy">Limits and operating policy</h2>
+<p>An hourly close can cross a threshold by a large amount before the keeper sees it. The observed maximum pre-reset close error under the 2% anchor policy was 4.064% for IRR, 2.011% for TRY, and 2.296% for ARS. Intrahour excursions are larger in parts of the data. The JSON additionally records hours whose high/low breached the installed anchor even though the close caused no reset; those are alerts, not an exact count of hypothetical intrahour rebalances. OHLC does not reveal the order of extremes.</p>
+<p>Under the 2% policy, those additional breach-hours numbered <strong>76 for IRR, 10 for TRY and 5 for ARS</strong>. Under the entire-band 5% rule, they numbered 31, 1 and 4 respectively. A higher-frequency keeper would therefore face more decisions than the close-only reset table suggests. These hours cannot simply be added as exact transactions: changing the anchor within an hour changes all subsequent comparisons, and some prints may fail the production source filters.</p>
+<p>Use frequent offchain monitoring, multiple independent observations, confidence limits, and a trigger inside the maximum tolerated deviation. Do not reposition from one exchange wick. During missing data, source disagreement, or an excessive gap, block exposure increases and apply the specified settlement policy. Production acceptance needs higher-frequency composite data, source-outage replay, latency and MEV simulation, executable depth, and inventory-loss accounting.</p>
+<p>These are <strong>range-reposition triggers</strong>, separate from authenticated oracle submissions. A loan may need a fresh report even on a day with no range movement. Repositioning also needs recoverable LP custody, inventory conversion, minimum outputs, and a post-operation health check. Moving tick bounds alone does not guarantee available inventory or an executable price; the gas budget excludes trading losses and capital needed to refill the new range.</p>
+<h2 id="reproduce">Reproduce</h2>
+<p>Download the <a href="downloads/reproducibility.zip">model, tests, normalized candles and manifest</a> and the <a href="downloads/fx_operations.json">full backtest JSON</a>. From the extracted repository layout:</p>
+<pre><code class="language-sh">python3 -m unittest discover -s tests -v
+python3 -m model.fx_operations
+</code></pre>
+<p>The archive contains the exact normalized CSVs used in this run. The private research archive also preserves raw exchange responses and request metadata. Re-fetching may return revised exchange history. <a href="daily-operations.html">Daily ETH budget</a> applies explicit gas assumptions to these observed reset counts.</p></article><footer>Design research. No production contracts or return promises. Public documentation; noindex is not access control.</footer></main></div></body></html>

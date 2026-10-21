@@ -4,14 +4,14 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
 <title>Request for proposals · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
-<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html" aria-current="page">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="request-for-proposals">Request for proposals</h1>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Zarban scenario</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html" aria-current="page">RFP</a><a href="decisions.html">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="request-for-proposals">Request for proposals</h1>
 <h2 id="project-and-objective">Project and objective</h2>
 <p>Design and validate collateral-backed IRR, TRY, and ARS tracking tokens with $10k to $50k seed LP value per currency. Most loans should require locked LP collateral containing the issued token and an external asset. A smaller reviewed branch may accept liquid volatile collateral such as ETH. Security, recoverability, and realistic gas costs are acceptance requirements.</p>
 <p>This RFP requests research and specification proposals first. Production deployment requires a separately approved implementation, independent review, remediation, and operating plan. No implementation or audit engagement is commissioned by publication of this RFP.</p>
 <h2 id="required-baseline">Required baseline</h2>
 <ul>
-<li>Model 90% of additional debt backed by LP and 10% by ETH, with 87.4% actual LP LTV.</li>
-<li>Start with $10k, $20k, and $50k total seed LP value per currency, a 0.97 to 1.00 target trading range, and initial price 1.00 with quote-only seed liquidity.</li>
+<li>Model 96% of additional debt backed by LP and 4% by ETH, with 87.4% actual LP LTV.</li>
+<li>Start with $10k, $20k, $30k, $40k and $50k total seed LP value per currency, a 0.97 to 1.00 target trading range, and initial price 1.00 with quote-only seed liquidity.</li>
 <li>Treat LP borrowing as buy, deposit, lock, mint, and sell, using actual AMM price impact and post-purchase inventory.</li>
 <li>Permit quote-only LP entry at the starting upper boundary. Specify collateral-backed expansion above parity separately.</li>
 <li>Compare the base case with the supplied FiRM LP-collateral benchmark using consistent gross debt, own-token collateral, external assets, and residual-debt denominators.</li>
@@ -20,6 +20,8 @@
 <li>Permit reviewed collateral adapters without giving core vaults arbitrary execution powers.</li>
 <li>Evaluate deferred asset disposal and bounded borrower-sponsored queue processing.</li>
 <li>Price security and operations separately from liquidity capital.</li>
+<li>Replicate the historical FX reset workload, then extend it to higher-frequency multi-source prices, inventory conversion, slippage, outages and real keeper latency. Separate 2%/5% anchor tolerance from total-price tolerance.</li>
+<li>Evaluate the proposed Zarban static savings-share quote route against direct FX pools, including source receipt accounting, bridge direction, delayed/faster rate delivery, independent peg policy, and committed exits.</li>
 </ul>
 <h2 id="work-packages">Work packages</h2>
 <div class="table-wrap"><table>
@@ -69,12 +71,17 @@
 <tr>
 <td>G Security plan</td>
 <td>Threat model, verification plan, independent review scope, remediation and launch gates</td>
-<td>Traceability to SEC01 through SEC12 and a priced review schedule</td>
+<td>Traceability to SEC01 through SEC13 and a priced review schedule</td>
 </tr>
 <tr>
 <td>H Operations</td>
 <td>Capital requirements, roles, monitoring, incident procedures, staged collateral rollout</td>
 <td>Runnable incident exercises and explicit funding commitments</td>
+</tr>
+<tr>
+<td>I Zarban alternative</td>
+<td>Source/static-share specification, current contract verification, mainnet representation, authenticated rate, exit agreement and comparative economics</td>
+<td>Pinned-block evidence, wrapper/bridge threat analysis, loss and stale-rate tests, committed size/fees/timing, TRY/ARS and ETH pricing dependencies</td>
 </tr>
 </tbody>
 </table></div>
@@ -87,7 +94,7 @@
 <h2 id="acceptance-gates">Acceptance gates</h2>
 <ol>
 <li>Independent replication of the baseline and an explanation of its lack of a finite issuance ceiling.</li>
-<li>Measured finite exit envelopes with complete liabilities and explicit funding assumptions.</li>
+<li>Exit envelopes with complete liabilities and explicit funding assumptions; explain why 5%/10% exits give no finite cap in the ideal 96/4 model and impose independent risk constraints.</li>
 <li>A valuation and liquidation design meeting the security invariants under manipulation and outages.</li>
 <li>A bounded gas and keeper-economics plan for the nominated chain.</li>
 <li>Resolved critical choices and an implementable specification before production work is approved.</li>
