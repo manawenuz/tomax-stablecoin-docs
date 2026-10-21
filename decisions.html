@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; base-uri 'self'; form-action 'none'">
 <title>Decisions and open questions · Tomax</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a><header><a class="brand" href="index.html">Tomax</a><div class="subtitle">Local currency stablecoins · Research and RFP · 21 October 2026</div></header>
-<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Zarban scenario</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html" aria-current="page">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="decisions-and-open-questions">Decisions and open questions</h1>
+<div class="shell"><nav aria-label="Research documents"><a href="index.html">Research brief</a><a href="simulation.html">Simulation</a><a href="results.html">Result tables</a><a href="fx-volatility.html">FX volatility</a><a href="daily-operations.html">Daily ETH budget</a><a href="zarban.html">Currency partners</a><a href="benchmark.html">FiRM benchmark</a><a href="architecture.html">Architecture</a><a href="market-making.html">Market making</a><a href="interest.html">Interest design</a><a href="oracle.html">FX oracle</a><a href="collateral.html">Collateral</a><a href="liquidations.html">Liquidations</a><a href="security.html">Security</a><a href="gas.html">Gas requirements</a><a href="operations.html">Operations</a><a href="rfp.html">RFP</a><a href="decisions.html" aria-current="page">Decisions</a><a href="sources.html">Sources</a></nav><main id="content"><article><h1 id="decisions-and-open-questions">Decisions and open questions</h1>
 <h2 id="accepted-research-assumptions">Accepted research assumptions</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -80,7 +80,11 @@
 </tr>
 <tr>
 <td>Alternate quote</td>
-<td>Research proposed Zarban static savings share on Ethereum; wrapper, bridge and committed exits remain unverified</td>
+<td>Matching local-currency stablecoin savings shares: Zarban for IRR; separate TRY and ARS providers to be selected</td>
+</tr>
+<tr>
+<td>Partner market separation</td>
+<td>ZAR is used only for IRR; each market has its own savings rate, provider exposure and exit budget</td>
 </tr>
 </tbody>
 </table></div>
@@ -95,8 +99,9 @@
 <li>Interest engine, gross versus residual borrowing-cost basis, borrowing-right supply policy, and revenue split.</li>
 <li>Direct redemption rights, fees, collateral routing, and outage behavior.</li>
 <li>Quote asset and acceptable delays, custody, market-price risk, and redemption routes.</li>
-<li>Whether the IRR product accepts Zarban ZAR as its reference or promises an independent composite-market peg.</li>
-<li>For a Zarban partnership: source wrapper, authenticated cross-chain rate, bridge counterpart, loss policy and committed mainnet/source exits.</li>
+<li>Whether each product accepts its local stablecoin partner as the reference or promises an independently verified fiat-market peg.</li>
+<li>Separate TRY and ARS providers and their actual savings, minting and redemption mechanisms.</li>
+<li>For each partnership: source wrapper, authenticated rate, any required bridge counterpart, loss policy and committed deployment-chain/source exits.</li>
 <li>ETH borrow LTV, liquidation threshold, debt ceilings, and funded backstop capacity.</li>
 <li>Permitted LP ranges, pooling or wrappers, manager powers, and valuation during manipulation.</li>
 <li>Queue deadlines, curing rights, loss and surplus allocation, and sponsorship caps.</li>
